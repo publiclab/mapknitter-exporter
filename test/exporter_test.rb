@@ -34,7 +34,8 @@ class ExporterTest < Minitest::Test
       height: 20,
       width: 20,
       filename: 'demo.png',
-      url: 'test/fixtures/demo.png'
+      url: 'test/fixtures/demo.png',
+      nodes_array: nodes_array
     }
     export = MockExport.new()
 
@@ -102,7 +103,7 @@ class ExporterTest < Minitest::Test
       slug,
       root,
       scale,
-      [image],
+      [image], # TODO: these images need a nodes_array
       ''
     )
 
