@@ -1,41 +1,42 @@
-require 'test_helper'
+require "minitest/autorun"
+require "./lib/mapknitterExporter"
 
-class ExporterTest < ActiveSupport::TestCase
-  test "isolated exporter lib" do
+class ExporterTest < Minitest::Test
+  def test_all_functions # break this into separate parts
 
     slug = "ten-forward"
     id = 1
     user_id = 1
     scale = 2
-    # replace map.export with a simple Export object
-    export = {
-      status: 'none',
-      tms: false,
-      geotiff: false,
-      zip: false,
-      jpg: false,
-      save: 0 # this should be a method
-    }
+    # replace map.export with a simple Export object, maybe a Mock?
+    # https://github.com/seattlerb/minitest#mocks
     root = "https://mapknitter.org"
     resolution = 20
     nodes_array = [
       {
-        lat: 41.8403113680142
+        lat: 41.8403113680142,
         lon: -71.3983854668186
       },
       {
-        lat: 41.8397358653566
+        lat: 41.8397358653566,
         lon: -71.3916477577732
       },
       {
-        lat: 41.8351476451765
+        lat: 41.8351476451765,
         lon: -71.392699183707
       },
       {
-        lat: 41.8377535388085
+        lat: 41.8377535388085,
         lon: -71.3981708900974
       }
     ]
+    image = {
+      height: 20,
+      width: 20,
+      filename: 'demo.png',
+      url: 'test/fixtures/demo.png'
+    }
+    export = MockExport.new()
 
     # make a sample image
     system('mkdir -p public/system/images/1/original')
@@ -45,18 +46,20 @@ class ExporterTest < ActiveSupport::TestCase
     system("touch public/warps/#{slug}/folder")
     assert File.exist?("public/warps/#{slug}/folder")
 
-    coords = Exporter.generate_perspectival_distort(
+    coords = MapKnitterExporter.generate_perspectival_distort(
       scale, 
       slug,
       nodes_array,
-      id, w.image_file_name,
-      image.image,
-      image.height,
-      image.width
+      id, 
+      image[:filename],
+      image[:url],
+      image[:height],
+      image[:width],
+      '' # root
     )
     assert coords
-    assert Exporter.get_working_directory(slug)
-    assert Exporter.warps_directory(slug)
+    assert MapKnitterExporter.get_working_directory(slug)
+    assert MapKnitterExporter.warps_directory(slug)
 
     # get rid of existing geotiff
     system("rm -r public/warps/#{slug}/1-geo.tif")
@@ -64,7 +67,7 @@ class ExporterTest < ActiveSupport::TestCase
     system('mkdir -p public/system/images/2/original/')
     system('cp test/fixtures/demo.png public/system/images/2/original/test.png')
 
-    origin = Exporter.distort_warpables(
+    origin = MapKnitterExporter.distort_warpables(
       scale,
       [image],
       export,
@@ -77,21 +80,21 @@ class ExporterTest < ActiveSupport::TestCase
     system("mkdir -p public/warps/#{slug}")
     system("mkdir -p public/tms/#{slug}")
     # these params could be compressed - warpable coords is part of origin; are coords and origin required?
-    assert Exporter.generate_composite_tiff(
+    assert MapKnitterExporter.generate_composite_tiff(
       warpable_coords,
       origin,
-      [image],
+      [{nodes_array: nodes_array}], # here it wants a collection of objects, each with a nodes_array
       slug,
       ordered
     )
 
-    assert Exporter.generate_tiles('', slug, root)
+    assert MapKnitterExporter.generate_tiles('', slug, root)
 
-    assert Exporter.zip_tiles(slug)
+    assert MapKnitterExporter.zip_tiles(slug)
 
-    assert Exporter.generate_jpg(slug, root)
+    assert MapKnitterExporter.generate_jpg(slug, root)
 
-    assert Exporter.run_export(
+    assert MapKnitterExporter.run_export(
       user_id,
       resolution,
       export,
@@ -114,7 +117,16 @@ class ExporterTest < ActiveSupport::TestCase
     assert File.exist?("public/warps/#{slug}/folder")
     system("mkdir -p public/warps/#{slug}-working")
     system("touch public/warps/#{slug}/test.png")
-    assert Exporter.delete_temp_files(slug)
+    assert MapKnitterExporter.delete_temp_files(slug)
   end
 end
 
+class MockExport
+
+  attr_accessor :status, :tms, :geotiff, :zip, :jpg
+
+  def save
+    puts "saved"
+  end
+
+end

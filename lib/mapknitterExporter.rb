@@ -1,3 +1,5 @@
+require './lib/cartagen'
+
 class MapKnitterExporter
 
   def self.ulimit
@@ -46,16 +48,16 @@ class MapKnitterExporter
     # everything -geo WITH AN ID could be deleted, but there is a feature request to preserve these
     warped_geotiff_location = directory+id.to_s+'-geo.tif'
 
-    northmost = nodes_array.first.lat
-    southmost = nodes_array.first.lat
-    westmost = nodes_array.first.lon
-    eastmost = nodes_array.first.lon
+    northmost = nodes_array.first[:lat]
+    southmost = nodes_array.first[:lat]
+    westmost = nodes_array.first[:lon]
+    eastmost = nodes_array.first[:lon]
 
     nodes_array.each do |node|
-      northmost = node.lat if node.lat > northmost
-      southmost = node.lat if node.lat < southmost
-      westmost = node.lon if node.lon < westmost
-      eastmost = node.lon if node.lon > eastmost
+      northmost = node[:lat] if node[:lat] > northmost
+      southmost = node[:lat] if node[:lat] < southmost
+      westmost = node[:lon] if node[:lon] < westmost
+      eastmost = node[:lon] if node[:lon] > eastmost
     end
 
     # puts northmost.to_s+','+southmost.to_s+','+westmost.to_s+','+eastmost.to_s
@@ -68,18 +70,18 @@ class MapKnitterExporter
     # puts x1.to_s+','+y1.to_s+','+x2.to_s+','+y2.to_s
 
     # should determine if it's stored in s3 or locally:
-    if (image_url[0..3] == 'http')
+    if (img_url[0..3] == 'http')
       Net::HTTP.start('s3.amazonaws.com') { |http|
       #Net::HTTP.start('localhost') { |http|
-        puts (image_url)
-        resp = http.get(image_url)
+        puts (img_url)
+        resp = http.get(img_url)
         open(local_location, "wb") { |file|
           file.write(resp.body)
         }
       }
     else
       require "fileutils"
-      FileUtils.cp(root + '/public'+image_url, local_location)
+      FileUtils.cp(root + img_url, local_location)
     end
 
     points = ""
@@ -122,8 +124,8 @@ class MapKnitterExporter
       corner = source_corners.shift
       nx1 = corner[0]
       ny1 = corner[1]
-      nx2 = -x1+(pxperm*Cartagen.spherical_mercator_lon_to_x(node.lon,scale))
-      ny2 = y1-(pxperm*Cartagen.spherical_mercator_lat_to_y(node.lat,scale))
+      nx2 = -x1+(pxperm*Cartagen.spherical_mercator_lon_to_x(node[:lon],scale))
+      ny2 = y1-(pxperm*Cartagen.spherical_mercator_lat_to_y(node[:lat],scale))
  
       points = points + '  ' unless first
       maskpoints = maskpoints + ' ' unless first
@@ -131,7 +133,7 @@ class MapKnitterExporter
       maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
       first = false
       # we need to find an origin; find northwestern-most point
-      coordinates = coordinates+' -gcp '+nx2.to_s+', '+ny2.to_s+', '+node.lon.to_s + ', ' + node.lat.to_s
+      coordinates = coordinates+' -gcp '+nx2.to_s+', '+ny2.to_s+', '+node[:lon].to_s + ', ' + node[:lat].to_s
       
       # identify largest dimension to set canvas size for ImageMagick:
       maxdimension = nx1.to_i if maxdimension < nx1.to_i
@@ -142,8 +144,8 @@ class MapKnitterExporter
 
     # close mask polygon:
     maskpoints = maskpoints + ' '
-      nx2 = -x1+(pxperm*Cartagen.spherical_mercator_lon_to_x(nodes_array.first.lon,scale))
-      ny2 = y1-(pxperm*Cartagen.spherical_mercator_lat_to_y(nodes_array.first.lat,scale))
+      nx2 = -x1+(pxperm*Cartagen.spherical_mercator_lon_to_x(nodes_array.first[:lon], scale))
+      ny2 = y1-(pxperm*Cartagen.spherical_mercator_lat_to_y(nodes_array.first[:lat], scale))
     maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
 
     height = (y1-y2).to_i.to_s
@@ -228,7 +230,16 @@ class MapKnitterExporter
      export.save
      ## 
 
-     img_coords = image.generate_perspectival_distort(scale,slug)
+     img_coords = generate_perspectival_distort(
+       scale,
+       slug,
+       image.nodes_array,
+       id,
+       image.filename,
+       image.url,
+       image.height,
+       image.width
+     )
      puts '- '+img_coords.to_s
      all_coords << img_coords
      lowest_x = img_coords.first if (img_coords.first < lowest_x || lowest_x == 0)
@@ -248,10 +259,10 @@ class MapKnitterExporter
     maxlon = nil
     placed_warpables.each do |warpable|
       warpable.nodes_array.each do |n|
-        minlat = n.lat if minlat == nil || n.lat < minlat
-        minlon = n.lon if minlon == nil || n.lon < minlon
-        maxlat = n.lat if maxlat == nil || n.lat > maxlat
-        maxlon = n.lon if maxlon == nil || n.lon > maxlon
+        minlat = n[:lat] if minlat == nil || n[:lat] < minlat
+        minlon = n[:lon] if minlon == nil || n[:lon] < minlon
+        maxlat = n[:lat] if maxlat == nil || n[:lat] > maxlat
+        maxlon = n[:lon] if maxlon == nil || n[:lon] > maxlon
       end
     end
     first = true
