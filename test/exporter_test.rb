@@ -3,15 +3,39 @@ require 'test_helper'
 class ExporterTest < ActiveSupport::TestCase
   test "isolated exporter lib" do
 
-    slug = "#{slug}"
+    slug = "ten-forward"
     id = 1
+    user_id = 1
     scale = 2
-    images = images(:one) # need to source from test/fixtures/warpables.yml 
-    average_scale
-    export = map.export # replace map.export with a simple Export object
+    # replace map.export with a simple Export object
+    export = {
+      status: 'none',
+      tms: false,
+      geotiff: false,
+      zip: false,
+      jpg: false,
+      save: 0 # this should be a method
+    }
     root = "https://mapknitter.org"
-    user = User.last # replace with static, look at what's actually used
     resolution = 20
+    nodes_array = [
+      {
+        lat: 41.8403113680142
+        lon: -71.3983854668186
+      },
+      {
+        lat: 41.8397358653566
+        lon: -71.3916477577732
+      },
+      {
+        lat: 41.8351476451765
+        lon: -71.392699183707
+      },
+      {
+        lat: 41.8377535388085
+        lon: -71.3981708900974
+      }
+    ]
 
     # make a sample image
     system('mkdir -p public/system/images/1/original')
@@ -21,11 +45,10 @@ class ExporterTest < ActiveSupport::TestCase
     system("touch public/warps/#{slug}/folder")
     assert File.exist?("public/warps/#{slug}/folder")
 
-    # TODO: create static images.nodes_array
     coords = Exporter.generate_perspectival_distort(
       scale, 
       slug,
-      images.nodes_array,
+      nodes_array,
       id, w.image_file_name,
       image.image,
       image.height,
@@ -43,7 +66,7 @@ class ExporterTest < ActiveSupport::TestCase
 
     origin = Exporter.distort_warpables(
       scale,
-      images,
+      [image],
       export,
       slug
     )
@@ -69,13 +92,13 @@ class ExporterTest < ActiveSupport::TestCase
     assert Exporter.generate_jpg(slug, root)
 
     assert Exporter.run_export(
-      user,
+      user_id,
       resolution,
       export,
       id,
       slug,
       root,
-      average_scale,
+      scale,
       [image],
       ''
     )

@@ -23,7 +23,7 @@ class MapKnitterExporter
   ## Run on each image:
 
   # pixels per meter = pxperm 
-  def self.generate_perspectival_distort(pxperm, path, nodes_array, id, image_file_name, image, height, width)
+  def self.generate_perspectival_distort(pxperm, path, nodes_array, id, image_file_name, img_url, height, width, root = "https://mapknitter.org")
     require 'net/http'
     
     # everything in -working/ can be deleted; 
@@ -68,18 +68,18 @@ class MapKnitterExporter
     # puts x1.to_s+','+y1.to_s+','+x2.to_s+','+y2.to_s
 
     # should determine if it's stored in s3 or locally:
-    if (image.url[0..3] == 'http')
+    if (image_url[0..3] == 'http')
       Net::HTTP.start('s3.amazonaws.com') { |http|
       #Net::HTTP.start('localhost') { |http|
-        puts (image.url)
-        resp = http.get(image.url)
+        puts (image_url)
+        resp = http.get(image_url)
         open(local_location, "wb") { |file|
           file.write(resp.body)
         }
       }
     else
       require "fileutils"
-      FileUtils.cp(Rails.root.to_s+'/public'+image.to_s,local_location)
+      FileUtils.cp(root + '/public'+image_url, local_location)
     end
 
     points = ""
@@ -212,29 +212,29 @@ class MapKnitterExporter
   ## Run on maps:
 
   # distort all warpables, returns upper left corner coords in x,y
-  def self.distort_warpables(scale, warpables, export, slug)
+  def self.distort_warpables(scale, images, export, slug)
 
     puts '> generating geotiffs of each warpable in GDAL'
-    lowest_x=0
-    lowest_y=0
-    warpable_coords = []
+    lowest_x = 0
+    lowest_y = 0
+    all_coords = []
     current = 0
-    warpables.each do |warpable|
+    images.each do |image|
      current += 1
 
      ## TODO: refactor to generate static status file:
-     export.status = 'warping '+current.to_s+' of '+warpables.length.to_s
-     puts 'warping '+current.to_s+' of '+warpables.length.to_s
+     export.status = 'warping '+current.to_s+' of '+images.length.to_s
+     puts 'warping '+current.to_s+' of '+images.length.to_s
      export.save
      ## 
 
-     my_warpable_coords = warpable.generate_perspectival_distort(scale,slug)
-     puts '- '+my_warpable_coords.to_s
-     warpable_coords << my_warpable_coords
-     lowest_x = my_warpable_coords.first if (my_warpable_coords.first < lowest_x || lowest_x == 0)
-     lowest_y = my_warpable_coords.last if (my_warpable_coords.last < lowest_y || lowest_y == 0)
+     img_coords = image.generate_perspectival_distort(scale,slug)
+     puts '- '+img_coords.to_s
+     all_coords << img_coords
+     lowest_x = img_coords.first if (img_coords.first < lowest_x || lowest_x == 0)
+     lowest_y = img_coords.last if (img_coords.last < lowest_y || lowest_y == 0)
     end
-    [lowest_x,lowest_y,warpable_coords]
+    [lowest_x, lowest_y, all_coords]
   end
 
   # generate a tiff from all warpable images in this set
@@ -299,9 +299,9 @@ class MapKnitterExporter
 
   # runs the above map functions while maintaining a record of state in an Export model;
   # we'll be replacing the export model state with a flat status file
-  def self.run_export(user,resolution,export,id,slug,root,average_scale,placed_warpables,key)
+  def self.run_export(user_id, resolution, export, id, slug, root, average_scale, placed_warpables, key)
     begin
-      export.user_id = user.id if user
+      export.user_id = user_id if user_id
       export.status = 'starting'
       export.tms = false
       export.geotiff = false
