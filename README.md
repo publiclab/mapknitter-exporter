@@ -20,3 +20,9 @@ MapKnitterExporter.generate_perspectival_distort(
   width
 )
 ```
+
+## Tests
+
+Tests are not passing completely but they are running; use `ruby test/exporter_test.rb` to run them.
+
+Tests require `minitest` which you can install with `bundle install`.
