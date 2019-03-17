@@ -70,7 +70,7 @@ class ExporterTest < Minitest::Test
 
     origin = MapKnitterExporter.distort_warpables(
       scale,
-      [image],
+      [image], # TODO: here it also expects image to have a nodes_array object
       export,
       slug
     )
@@ -84,7 +84,7 @@ class ExporterTest < Minitest::Test
     assert MapKnitterExporter.generate_composite_tiff(
       warpable_coords,
       origin,
-      [{nodes_array: nodes_array}], # here it wants a collection of objects, each with a nodes_array
+      [{nodes_array: nodes_array}], # TODO: here it wants a collection of objects, each with a nodes_array
       slug,
       ordered
     )

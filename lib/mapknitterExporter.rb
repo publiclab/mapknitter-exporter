@@ -81,7 +81,7 @@ class MapKnitterExporter
       }
     else
       require "fileutils"
-      FileUtils.cp(root + img_url, local_location)
+      FileUtils.cp(img_url, local_location)
     end
 
     points = ""
@@ -233,12 +233,12 @@ class MapKnitterExporter
      img_coords = generate_perspectival_distort(
        scale,
        slug,
-       image.nodes_array,
-       id,
-       image.filename,
-       image.url,
-       image.height,
-       image.width
+       image[:nodes_array],
+       image[:id],
+       image[:filename],
+       image[:url],
+       image[:height],
+       image[:width]
      )
      puts '- '+img_coords.to_s
      all_coords << img_coords
@@ -258,7 +258,7 @@ class MapKnitterExporter
     maxlat = nil
     maxlon = nil
     placed_warpables.each do |warpable|
-      warpable.nodes_array.each do |n|
+      warpable[:nodes_array].each do |n|
         minlat = n[:lat] if minlat == nil || n[:lat] < minlat
         minlon = n[:lon] if minlon == nil || n[:lon] < minlon
         maxlat = n[:lat] if maxlat == nil || n[:lat] > maxlat
@@ -271,12 +271,13 @@ class MapKnitterExporter
       warpables = placed_warpables.sort{|a,b|b.poly_area <=> a.poly_area}
     end
     warpables.each do |warpable|
-      geotiffs += ' '+directory+warpable.id.to_s+'-geo.tif'
+      wid = warpable[:id].to_s
+      geotiffs += ' '+directory+wid+'-geo.tif'
       if first
-        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te "+minlon.to_s+" "+minlat.to_s+" "+maxlon.to_s+" "+maxlat.to_s+" "+directory+warpable.id.to_s+'-geo.tif '+directory+slug+'-geo.tif'
+        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te "+minlon.to_s+" "+minlat.to_s+" "+maxlon.to_s+" "+maxlat.to_s+" "+directory+wid+'-geo.tif '+directory+slug+'-geo.tif'
         first = false
       else
-        gdalwarp = "gdalwarp "+directory+warpable.id.to_s+'-geo.tif '+directory+slug+'-geo.tif'
+        gdalwarp = "gdalwarp "+directory+wid+'-geo.tif '+directory+slug+'-geo.tif'
       end
       puts gdalwarp
       system(self.ulimit+gdalwarp)
@@ -289,12 +290,12 @@ class MapKnitterExporter
   def self.generate_tiles(key, slug, root)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key = key || "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = 'gdal2tiles.py -k --s_srs EPSG:3857 -t "'+slug+'" -g "'+key+'" '+root+'/public/warps/'+slug+'/'+slug+'-geo.tif '+root+'/public/tms/'+slug+"/"
+    gdal2tiles = 'gdal2tiles.py -k --s_srs EPSG:3857 -t "'+slug+'" -g "'+key+'" '+'public/warps/'+slug+'/'+slug+'-geo.tif '+'public/tms/'+slug+"/"
     puts gdal2tiles
     system(self.ulimit+gdal2tiles)
   end
 
-  # zips up tiles at root/public/tms/<slug>.zip;
+  # zips up tiles at public/tms/<slug>.zip;
   def self.zip_tiles(slug)
     rmzip = 'cd public/tms/ && rm '+slug+'.zip && cd ../../'
     system(rmzip)
@@ -302,7 +303,7 @@ class MapKnitterExporter
     system(zip)
   end
 
-  # generates a tileset at root/public/tms/<slug>/
+  # generates a tileset at public/tms/<slug>/
   def self.generate_jpg(slug, root)
     imageMagick = 'convert -background white -flatten '+root+'/public/warps/'+slug+'/'+slug+'-geo.tif '+root+'/public/warps/'+slug+'/'+slug+'.jpg'
     system(self.ulimit+imageMagick)
