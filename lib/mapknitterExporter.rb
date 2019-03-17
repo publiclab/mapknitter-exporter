@@ -290,7 +290,8 @@ class MapKnitterExporter
   def self.generate_tiles(key, slug, root)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key = key || "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = 'gdal2tiles.py -k --s_srs EPSG:3857 -t "'+slug+'" -g "'+key+'" '+'public/warps/'+slug+'/'+slug+'-geo.tif '+'public/tms/'+slug+"/"
+    zooms = zooms || "8-10"
+    gdal2tiles = "gdal2tiles.py -k -z #{zooms} --s_srs EPSG:3857 -t #{slug} -g #{key} public/warps/#{slug}/#{slug}-geo.tif public/tms/#{slug}/"
     puts gdal2tiles
     system(self.ulimit+gdal2tiles)
   end
@@ -299,13 +300,13 @@ class MapKnitterExporter
   def self.zip_tiles(slug)
     rmzip = 'cd public/tms/ && rm '+slug+'.zip && cd ../../'
     system(rmzip)
-    zip = 'cd public/tms/ && ' + self.ulimit + 'zip -rq '+slug+'.zip '+slug+'/ && cd ../../'
+    zip = "cd public/tms/ && #{self.ulimit}zip -rq #{slug}.zip #{slug}/ && cd ../../"
     system(zip)
   end
 
   # generates a tileset at public/tms/<slug>/
   def self.generate_jpg(slug, root)
-    imageMagick = 'convert -background white -flatten '+root+'/public/warps/'+slug+'/'+slug+'-geo.tif '+root+'/public/warps/'+slug+'/'+slug+'.jpg'
+    imageMagick = "convert -background white -flatten #{root}/public/warps/#{slug}/#{slug}-geo.tif #{root}/public/warps/#{slug}/#{slug}.jpg"
     system(self.ulimit+imageMagick)
   end
 
