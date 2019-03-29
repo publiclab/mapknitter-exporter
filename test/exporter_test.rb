@@ -4,7 +4,6 @@ require "./lib/mapknitterExporter"
 class ExporterTest < Minitest::Test
   def test_all_functions # break this into separate parts
 
-    slug = "ten-forward"
     id = 1
     user_id = 1
     scale = 2
@@ -43,16 +42,15 @@ class ExporterTest < Minitest::Test
     # make a sample image
     system('mkdir -p public/system/images/1/original')
     system('cp test/fixtures/demo.png public/system/images/1/original/')
-    system("mkdir -p public/warps/#{slug}")
-    system("mkdir -p public/tms/#{slug}")
-    system("touch public/warps/#{slug}/folder")
-    assert File.exist?("public/warps/#{slug}/folder")
+    system("mkdir -p public/warps/#{id}")
+    system("mkdir -p public/tms/#{id}")
+    system("touch public/warps/#{id}/folder")
+    assert File.exist?("public/warps/#{id}/folder")
 
     coords = MapKnitterExporter.generate_perspectival_distort(
       scale, 
-      slug,
+      id,
       nodes_array,
-      id, 
       image[:filename],
       image[:url],
       image[:height],
@@ -60,11 +58,11 @@ class ExporterTest < Minitest::Test
       '' # root
     )
     assert coords
-    assert MapKnitterExporter.get_working_directory(slug)
-    assert MapKnitterExporter.warps_directory(slug)
+    assert MapKnitterExporter.get_working_directory(id)
+    assert MapKnitterExporter.warps_directory(id)
 
     # get rid of existing geotiff
-    system("rm -r public/warps/#{slug}/1-geo.tif")
+    system("rm -r public/warps/#{id}/1-geo.tif")
     # make a sample image
     system('mkdir -p public/system/images/2/original/')
     system('cp test/fixtures/demo.png public/system/images/2/original/test.png')
@@ -73,38 +71,35 @@ class ExporterTest < Minitest::Test
       scale,
       [image], # TODO: here it also expects image to have a nodes_array object
       export,
-      slug
+      id
     )
     lowest_x, lowest_y, warpable_coords = origin
     assert origin
     ordered = false
 
-    system("mkdir -p public/warps/#{slug}")
-    system("mkdir -p public/tms/#{slug}")
+    system("mkdir -p public/warps/#{id}")
+    system("mkdir -p public/tms/#{id}")
     # these params could be compressed - warpable coords is part of origin; are coords and origin required?
     assert MapKnitterExporter.generate_composite_tiff(
       warpable_coords,
       origin,
-      [image],
-      slug,
+      [{nodes_array: nodes_array}], # TODO: here it wants a collection of objects, each with a nodes_array
+      id,
       ordered
     )
 
-    assert MapKnitterExporter.generate_tiles('.', slug, root)
+    assert MapKnitterExporter.generate_tiles('', id, root)
 
-    assert MapKnitterExporter.zip_tiles(slug)
+    assert MapKnitterExporter.zip_tiles(id)
 
-    assert MapKnitterExporter.generate_jpg(slug, '.')
+    assert MapKnitterExporter.generate_jpg(id, root)
 
     assert MapKnitterExporter.run_export(
       user_id,
       resolution,
       export,
       id,
-      slug,
-      root,
-      scale,
-      [image],
+      [image], # TODO: these images need a nodes_array
       ''
     )
 
@@ -113,13 +108,13 @@ class ExporterTest < Minitest::Test
     # make a sample image
     system('mkdir -p public/system/images/2/original/')
     system('touch public/system/images/2/original/test.png')
-    system("mkdir -p public/warps/#{slug}")
-    system("mkdir -p public/tms/#{slug}")
-    system("touch public/warps/#{slug}/folder")
-    assert File.exist?("public/warps/#{slug}/folder")
-    system("mkdir -p public/warps/#{slug}-working")
-    system("touch public/warps/#{slug}/test.png")
-    assert MapKnitterExporter.delete_temp_files(slug)
+    system("mkdir -p public/warps/#{id}")
+    system("mkdir -p public/tms/#{id}")
+    system("touch public/warps/#{id}/folder")
+    assert File.exist?("public/warps/#{id}/folder")
+    system("mkdir -p public/warps/#{id}-working")
+    system("touch public/warps/#{id}/test.png")
+    assert MapKnitterExporter.delete_temp_files(id)
   end
 end
 
