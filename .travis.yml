@@ -1,6 +1,9 @@
 sudo: required
 services:
   - docker
+language: ruby
+rvm:
+  - 2.4.4
 
 install:
     docker build . -t lib-mapknitter-exporter:latest
