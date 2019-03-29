@@ -26,16 +26,16 @@ class MapKnitterExporter
   ## Run on each image:
 
   # pixels per meter = pxperm 
-  def self.generate_perspectival_distort(pxperm, path, nodes_array, id, image_file_name, img_url, height, width, root = "https://mapknitter.org")
+  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, root = "https://mapknitter.org")
     require 'net/http'
     
     # everything in -working/ can be deleted; 
     # this is just so we can use the files locally outside of s3
-    working_directory = get_working_directory(path)
+    working_directory = get_working_directory(id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
     local_location = working_directory+id.to_s+'-'+image_file_name.to_s
 
-    directory = warps_directory(path)
+    directory = warps_directory(id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
     completed_local_location = directory+id.to_s+'.png'
 
@@ -206,7 +206,7 @@ class MapKnitterExporter
     system(self.ulimit+gdalwarp)
 
     # deletions could happen here; do it in distinct method so we can run it independently
-    delete_temp_files(path)
+    delete_temp_files(id)
 
     [x1,y1]
   end
