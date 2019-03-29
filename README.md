@@ -11,9 +11,8 @@ require 'mapknitter-exporter'
 
 MapKnitterExporter.generate_perspectival_distort(
   scale,
-  'map',
-  nodes_array,
   1, # a unique id
+  nodes_array,
   'test/fixtures/demo.png',
   image,
   height,
