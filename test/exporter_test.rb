@@ -33,6 +33,7 @@ class ExporterTest < Minitest::Test
     image = {
       height: 20,
       width: 20,
+      id: 1,
       filename: 'demo.png',
       url: 'test/fixtures/demo.png',
       nodes_array: nodes_array
