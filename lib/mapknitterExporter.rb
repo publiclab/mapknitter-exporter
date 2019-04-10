@@ -71,7 +71,7 @@ class MapKnitterExporter
     # puts x1.to_s+','+y1.to_s+','+x2.to_s+','+y2.to_s
 
     # should determine if it's stored in s3 or locally:
-    if (img_url[0..3] == 'http')
+    if (img_url.slice(0,4) == 'http')
       Net::HTTP.start('s3.amazonaws.com') { |http|
       #Net::HTTP.start('localhost') { |http|
         puts (img_url)
