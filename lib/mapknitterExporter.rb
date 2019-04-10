@@ -10,11 +10,11 @@ class MapKnitterExporter
   end
 
   def self.get_working_directory(path)
-    "public/warps/" + path + "-working/"
+    "public/warps/#{path}-working/"
   end
 
   def self.warps_directory(path)
-    "public/warps/" + path + "/"
+    "public/warps/#{path}/"
   end
 
   def self.delete_temp_files(path)
