@@ -90,11 +90,11 @@ class ExporterTest < Minitest::Test
       ordered
     )
 
-    assert MapKnitterExporter.generate_tiles('', slug, root)
+    assert MapKnitterExporter.generate_tiles('.', slug, root)
 
     assert MapKnitterExporter.zip_tiles(slug)
 
-    assert MapKnitterExporter.generate_jpg(slug, root)
+    assert MapKnitterExporter.generate_jpg(slug, '.')
 
     assert MapKnitterExporter.run_export(
       user_id,
