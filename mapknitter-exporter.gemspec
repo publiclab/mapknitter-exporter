@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.description = "The GDAL/ImageMagick-based exporter system from MapKnitter"
   s.authors     = ["Jeffrey Warren"]
   s.email       = 'jeff@unterbahn.com'
-  s.files       = ["lib/mapknitterExporter.rb"]
+  s.files       = ["lib/mapknitterExporter.rb", "lib/cartagen.rb"]
   s.homepage    =
     'http://rubygems.org/gems/mapknitter-exporter'
   s.license       = 'GPLv3'
