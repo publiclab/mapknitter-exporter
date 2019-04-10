@@ -10,7 +10,7 @@ class ExporterTest < Minitest::Test
     scale = 2
     # replace map.export with a simple Export object, maybe a Mock?
     # https://github.com/seattlerb/minitest#mocks
-    root = "https://mapknitter.org"
+    root = "" # instead of default https://mapknitter.org, bc image is local
     resolution = 20
     nodes_array = [
       {
