@@ -51,6 +51,7 @@ class ExporterTest < Minitest::Test
       scale, 
       id,
       nodes_array,
+      image[:filename],
       image[:url],
       image[:height],
       image[:width],
