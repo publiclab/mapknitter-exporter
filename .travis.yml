@@ -1,9 +1,9 @@
-language: ruby
-rvm:
-  - 2.4
+sudo: required
+services:
+  - docker
 
 install:
-  - bundle install
+    docker build . -t lib-mapknitter-exporter:latest
 
 script:
-  - ruby test/exporter_test.rb
+    docker run lib-mapknitter-exporter ruby test/exporter_test.rb

@@ -10,7 +10,7 @@ class ExporterTest < Minitest::Test
     scale = 2
     # replace map.export with a simple Export object, maybe a Mock?
     # https://github.com/seattlerb/minitest#mocks
-    root = "https://mapknitter.org"
+    root = "" # instead of default https://mapknitter.org, bc image is local
     resolution = 20
     nodes_array = [
       {
@@ -33,6 +33,7 @@ class ExporterTest < Minitest::Test
     image = {
       height: 20,
       width: 20,
+      id: 1,
       filename: 'demo.png',
       url: 'test/fixtures/demo.png',
       nodes_array: nodes_array
@@ -84,16 +85,16 @@ class ExporterTest < Minitest::Test
     assert MapKnitterExporter.generate_composite_tiff(
       warpable_coords,
       origin,
-      [{nodes_array: nodes_array}], # TODO: here it wants a collection of objects, each with a nodes_array
+      [image],
       slug,
       ordered
     )
 
-    assert MapKnitterExporter.generate_tiles('', slug, root)
+    assert MapKnitterExporter.generate_tiles('.', slug, root)
 
     assert MapKnitterExporter.zip_tiles(slug)
 
-    assert MapKnitterExporter.generate_jpg(slug, root)
+    assert MapKnitterExporter.generate_jpg(slug, '.')
 
     assert MapKnitterExporter.run_export(
       user_id,
@@ -103,7 +104,7 @@ class ExporterTest < Minitest::Test
       slug,
       root,
       scale,
-      [image], # TODO: these images need a nodes_array
+      [image],
       ''
     )
 
@@ -124,7 +125,7 @@ end
 
 class MockExport
 
-  attr_accessor :status, :tms, :geotiff, :zip, :jpg
+  attr_accessor :status, :tms, :geotiff, :zip, :jpg, :user_id, :size, :width, :height, :cm_per_pixel
 
   def save
     puts "saved"
