@@ -90,15 +90,19 @@ class ExporterTest < Minitest::Test
 
     assert MapKnitterExporter.generate_tiles('', id, root)
 
+    system("mkdir -p public/tms/#{id}")
+    system("touch public/tms/#{id}/#{id}.zip")
     assert MapKnitterExporter.zip_tiles(id)
 
     assert MapKnitterExporter.generate_jpg(id, '.') # '.' as root
 
+    # run_export(user_id, resolution, export, id, root, placed_warpables, key)
     assert MapKnitterExporter.run_export(
       user_id,
       resolution,
       export,
       id,
+      root,
       [image],
       ''
     )
