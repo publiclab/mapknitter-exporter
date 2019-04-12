@@ -82,6 +82,10 @@ class MapKnitterExporter
       }
     else
       require "fileutils"
+      puts '>>>>>>>>>>>>>>oldfashioned'
+      puts 'img_url, local_location'
+      puts img_url
+      puts local_location
       FileUtils.cp(img_url, local_location)
     end
 
