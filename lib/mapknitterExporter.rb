@@ -1,4 +1,5 @@
 require './lib/cartagen'
+require 'open3'
 
 class MapKnitterExporter
 
