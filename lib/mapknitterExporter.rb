@@ -254,7 +254,7 @@ class MapKnitterExporter
 
   # generate a tiff from all warpable images in this set
   def self.generate_composite_tiff(coords, origin, placed_warpables, id, ordered)
-    directory = "public/warps/"+id+"/"
+    directory = "public/warps/#{id}/"
     composite_location = directory+id+'-geo.tif'
     geotiffs = ''
     minlat = nil
@@ -294,22 +294,22 @@ class MapKnitterExporter
   def self.generate_tiles(key, id, root)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key = key || "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = 'gdal2tiles.py -k --s_srs EPSG:3857 -t "'+id+'" -g "'+key+'" '+'public/warps/'+id+'/'+id+'-geo.tif '+'public/tms/'+id+"/"
+    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}-geo.tif public/tms/#{id}/"
     puts gdal2tiles
     system(self.ulimit+gdal2tiles)
   end
 
   # zips up tiles at public/tms/<id>.zip;
   def self.zip_tiles(id)
-    rmzip = 'cd public/tms/ && rm '+id+'.zip && cd ../../'
+    rmzip = "cd public/tms/ && rm #{id}.zip && cd ../../"
     system(rmzip)
-    zip = 'cd public/tms/ && ' + self.ulimit + 'zip -rq '+id+'.zip '+id+'/ && cd ../../'
+    zip = "cd public/tms/ && #{self.ulimit} zip -rq #{id}.zip #{id}/ && cd ../../"
     system(zip)
   end
 
   # generates a tileset at public/tms/<id>/
   def self.generate_jpg(id, root)
-    imageMagick = 'convert -background white -flatten '+root+'/public/warps/'+id+'/'+id+'-geo.tif '+root+'/public/warps/'+id+'/'+id+'.jpg'
+    imageMagick = "convert -background white -flatten #{root}/public/warps/#{id}/#{id}-geo.tif #{root}/public/warps/#{id}/#{id}.jpg"
     system(self.ulimit+imageMagick)
   end
 
@@ -325,7 +325,7 @@ class MapKnitterExporter
       export.jpg = false
       export.save
 
-      directory = "#{root}/public/warps/"+id+"/"
+      directory = "#{root}/public/warps/#{id}/"
       stdin, stdout, stderr = Open3.popen3('rm -r '+directory.to_s)
       puts stdout.readlines
       puts stderr.readlines
