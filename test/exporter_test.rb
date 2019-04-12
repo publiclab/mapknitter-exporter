@@ -65,7 +65,7 @@ class ExporterTest < Minitest::Test
     system("rm -r public/warps/#{id}/1-geo.tif")
     # make a sample image
     system('mkdir -p public/system/images/2/original/')
-    system('cp test/fixtures/demo.png public/system/images/2/original/test.png')
+    system('cp test/fixtures/demo.png public/system/images/1/original/test.png')
 
     origin = MapKnitterExporter.distort_warpables(
       scale,
