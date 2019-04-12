@@ -125,7 +125,7 @@ end
 
 class MockExport
 
-  attr_accessor :status, :tms, :geotiff, :zip, :jpg, :user_id
+  attr_accessor :status, :tms, :geotiff, :zip, :jpg, :user_id, :size, :width, :height, :cm_per_pixel
 
   def save
     puts "saved"
