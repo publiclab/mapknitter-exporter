@@ -239,7 +239,6 @@ class MapKnitterExporter
        scale,
        id,
        image[:nodes_array],
-       image[:id],
        image[:filename],
        image[:url],
        image[:height],
