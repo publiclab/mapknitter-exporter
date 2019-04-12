@@ -77,6 +77,7 @@ class ExporterTest < Minitest::Test
     assert origin
     ordered = false
 
+    system("rm -r public/warps/#{id}/1-geo.tif")
     system("mkdir -p public/warps/#{id}")
     system("mkdir -p public/tms/#{id}")
     # these params could be compressed - warpable coords is part of origin; are coords and origin required?
@@ -106,10 +107,11 @@ class ExporterTest < Minitest::Test
     # test deletion of the files; they were already deleted in run_export, 
     # so let's make new dummy ones:
     # make a sample image
-    system('mkdir -p public/system/images/2/original/')
-    system('touch public/system/images/2/original/test.png')
+    system('mkdir -p public/system/images/1/original/')
+    system('touch public/system/images/1/original/test.png')
     system("mkdir -p public/warps/#{id}")
     system("mkdir -p public/tms/#{id}")
+    system("touch public/tms/#{id}/#{id}.zip")
     system("touch public/warps/#{id}/folder")
     assert File.exist?("public/warps/#{id}/folder")
     system("mkdir -p public/warps/#{id}-working")
