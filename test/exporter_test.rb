@@ -102,7 +102,7 @@ class ExporterTest < Minitest::Test
       resolution,
       export,
       id,
-      '.',
+      root,
       [image],
       ''
     )
