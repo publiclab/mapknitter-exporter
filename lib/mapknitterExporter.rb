@@ -33,7 +33,7 @@ class MapKnitterExporter
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
-    local_location = working_directory+id.to_s+'-'+image_file_name.to_s
+    local_location = "#{working_directory}#{id}-#{image_file_name}"
 
     directory = warps_directory(id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
@@ -255,7 +255,7 @@ class MapKnitterExporter
   # generate a tiff from all warpable images in this set
   def self.generate_composite_tiff(coords, origin, placed_warpables, id, ordered)
     directory = "public/warps/#{id}/"
-    composite_location = directory+id+'-geo.tif'
+    composite_location = directory + id.to_s + '-geo.tif'
     geotiffs = ''
     minlat = nil
     minlon = nil
@@ -278,10 +278,10 @@ class MapKnitterExporter
       wid = warpable[:id].to_s
       geotiffs += ' '+directory+wid+'-geo.tif'
       if first
-        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te "+minlon.to_s+" "+minlat.to_s+" "+maxlon.to_s+" "+maxlat.to_s+" "+directory+wid+'-geo.tif '+directory+id+'-geo.tif'
+        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
         first = false
       else
-        gdalwarp = "gdalwarp "+directory+wid+'-geo.tif '+directory+id+'-geo.tif'
+        gdalwarp = "gdalwarp #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
       end
       puts gdalwarp
       system(self.ulimit+gdalwarp)
