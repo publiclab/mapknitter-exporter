@@ -77,7 +77,6 @@ class ExporterTest < Minitest::Test
     assert origin
     ordered = false
 
-    system("rm -r public/warps/#{id}/1-geo.tif")
     system("mkdir -p public/warps/#{id}")
     system("mkdir -p public/tms/#{id}")
     # these params could be compressed - warpable coords is part of origin; are coords and origin required?
