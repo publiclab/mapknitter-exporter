@@ -92,7 +92,7 @@ class ExporterTest < Minitest::Test
 
     assert MapKnitterExporter.zip_tiles(id)
 
-    assert MapKnitterExporter.generate_jpg(id, root)
+    assert MapKnitterExporter.generate_jpg(id, '.') # '.' as root
 
     assert MapKnitterExporter.run_export(
       user_id,
