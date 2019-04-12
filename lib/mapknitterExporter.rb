@@ -305,7 +305,7 @@ class MapKnitterExporter
 
   # generates a tileset at public/tms/<id>/
   def self.generate_jpg(id, root)
-    imageMagick = "convert -background white -flatten #{root}/public/warps/#{id}/#{id}-geo.tif #{root}/public/warps/#{id}/#{id}.jpg"
+    imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}-geo.tif #{root}/public/warps/#{id}/#{id}.jpg"
     system(self.ulimit+imageMagick)
   end
 
