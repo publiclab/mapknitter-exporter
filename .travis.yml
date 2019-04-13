@@ -6,4 +6,4 @@ install:
     docker build . -t lib-mapknitter-exporter:latest
 
 script:
-    docker run lib-mapknitter-exporter ruby test/exporter_test.rb
+    docker run lib-mapknitter-exporter bundle exec ruby test/exporter_test.rb
