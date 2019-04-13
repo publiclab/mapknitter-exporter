@@ -7,3 +7,8 @@ install:
 
 script:
     docker run lib-mapknitter-exporter ruby test/exporter_test.rb
+
+branches:
+   only:
+    - main
+    - unstable
