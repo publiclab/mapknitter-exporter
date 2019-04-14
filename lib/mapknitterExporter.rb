@@ -127,7 +127,7 @@ class MapKnitterExporter
  
       points = points + '  ' unless first
       maskpoints = maskpoints + ' ' unless first
- puts (points, nx1, ny1, nx2, ny2)
+ puts points, nx1, ny1, nx2, ny2
       points = points + nx1.to_s + ',' + ny1.to_s + ' ' + nx2.to_i.to_s + ',' + ny2.to_i.to_s
       maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
       first = false
