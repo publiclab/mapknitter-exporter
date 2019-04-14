@@ -1,2 +1,2 @@
-require './lib/cartagen'
-require './lib/mapknitterExporter'
+require 'cartagen'
+require 'mapknitterExporter'
