@@ -232,8 +232,8 @@ class MapKnitterExporter
        scale,
        id,
        image['nodes'],
-       image['filename'],
-       image['url'],
+       image['image_file_name'],
+       image['src'],
        image['height'],
        image['width']
      )

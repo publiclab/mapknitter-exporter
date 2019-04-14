@@ -34,8 +34,8 @@ class ExporterTest < Minitest::Test
       'height': 20,
       'width': 20,
       'id': 1,
-      'filename': 'demo.png',
-      'url': 'test/fixtures/demo.png',
+      'image_file_name': 'demo.png',
+      'src': 'test/fixtures/demo.png',
       'nodes': nodes_array
     }
 
@@ -56,8 +56,8 @@ class ExporterTest < Minitest::Test
       scale, 
       id,
       nodes_array,
-      image['filename'],
-      image['url'],
+      image['image_file_name'],
+      image['src'],
       image['height'],
       image['width'],
       '' # root
