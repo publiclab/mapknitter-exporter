@@ -128,7 +128,7 @@ class MapKnitterExporter
       points = points + '  ' unless first
       maskpoints = maskpoints + ' ' unless first
       points = points + nx1.to_s + ',' + ny1.to_s + ' ' + nx2.to_s + ',' + ny2.to_s
-      maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
+      maskpoints = maskpoints + nx2.to_s + ',' + ny2.to_s
       first = false
       # we need to find an origin; find northwestern-most point
       coordinates = coordinates+' -gcp '+nx2.to_s+', '+ny2.to_s+', '+node['lon'].to_s + ', ' + node['lat'].to_s
@@ -263,9 +263,9 @@ class MapKnitterExporter
       end
     end
     first = true
-    if ordered != true
+    if ordered != true && placed_warpables.first.keys.include?('poly_area')
       # sort by area; this would be overridden by a provided order
-      warpables = placed_warpables.sort{|a,b|b.poly_area <=> a.poly_area}
+      warpables = placed_warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
     warpables.each do |warpable|
       wid = warpable['id'].to_s
