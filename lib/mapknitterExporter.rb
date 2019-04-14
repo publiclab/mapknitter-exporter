@@ -246,7 +246,7 @@ class MapKnitterExporter
   end
 
   # generate a tiff from all warpable images in this set
-  def self.generate_composite_tiff(coords, origin, placed_warpables, id, ordered)
+  def self.generate_composite_tiff(coords, origin, warpables, id, ordered)
     directory = "public/warps/#{id}/"
     composite_location = directory + id.to_s + '-geo.tif'
     geotiffs = ''
@@ -254,7 +254,7 @@ class MapKnitterExporter
     minlon = nil
     maxlat = nil
     maxlon = nil
-    placed_warpables.each do |warpable|
+    warpables.each do |warpable|
       warpable['nodes'].each do |n|
         minlat = n['lat'] if minlat == nil || n['lat'] < minlat
         minlon = n['lon'] if minlon == nil || n['lon'] < minlon
@@ -265,7 +265,7 @@ class MapKnitterExporter
     first = true
     if ordered != true && placed_warpables.first.keys.include?('poly_area')
       # sort by area; this would be overridden by a provided order
-      warpables = placed_warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
+      warpables = warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
     warpables.each do |warpable|
       wid = warpable['id'].to_s
