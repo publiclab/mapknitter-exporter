@@ -122,6 +122,8 @@ class MapKnitterExporter
       corner = source_corners.shift
       nx1 = corner[0]
       ny1 = corner[1]
+STDOUT.puts -x1, pxperm.to_f, node['lon'].to_f, scale.to_f
+STDOUT.puts -x1, pxperm.to_f, Cartagen.spherical_mercator_lon_to_x(node['lon'].to_f, scale.to_f)
       nx2 = -x1 + (pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(node['lon'].to_f, scale.to_f))
       ny2 =  y1 - (pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(node['lat'].to_f, scale.to_f))
  
