@@ -63,10 +63,10 @@ class MapKnitterExporter
     end
     
     scale = 20037508.34    
-    y1 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(northmost,scale.to_f)
-    x1 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(westmost,scale.to_f)
-    y2 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(southmost,scale.to_f)
-    x2 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(eastmost,scale.to_f)
+    y1 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(northmost,scale)
+    x1 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(westmost,scale)
+    y2 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(southmost,scale)
+    x2 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(eastmost,scale)
 
     # should determine if it's stored in s3 or locally:
     if (img_url.slice(0,4) == 'http')
@@ -127,8 +127,7 @@ class MapKnitterExporter
  
       points = points + '  ' unless first
       maskpoints = maskpoints + ' ' unless first
- puts points, nx1, ny1, nx2, ny2
-      points = points + nx1.to_s + ',' + ny1.to_s + ' ' + nx2.to_i.to_s + ',' + ny2.to_i.to_s
+      points = points + nx1.to_s + ',' + ny1.to_s + ' ' + nx2.to_s + ',' + ny2.to_s
       maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
       first = false
       # we need to find an origin; find northwestern-most point
