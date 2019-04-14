@@ -235,7 +235,7 @@ class MapKnitterExporter
      img_coords = generate_perspectival_distort(
        scale,
        id,
-       image[:nodes_array],
+       image[:nodes],
        image[:filename],
        image[:url],
        image[:height],
@@ -259,7 +259,7 @@ class MapKnitterExporter
     maxlat = nil
     maxlon = nil
     placed_warpables.each do |warpable|
-      warpable[:nodes_array].each do |n|
+      warpable[:nodes].each do |n|
         minlat = n[:lat] if minlat == nil || n[:lat] < minlat
         minlon = n[:lon] if minlon == nil || n[:lon] < minlon
         maxlat = n[:lat] if maxlat == nil || n[:lat] > maxlat
