@@ -312,7 +312,7 @@ class MapKnitterExporter
 
   # runs the above map functions while maintaining a record of state in an Export model;
   # we'll be replacing the export model state with a flat status file
-  def self.run_export(user_id, resolution, export, id, root, placed_warpables, key)
+  def self.run_export(user_id, resolution, export, id, root, warpables, key)
     export.user_id = user_id if user_id
     export.status = 'starting'
     export.tms = false
@@ -320,6 +320,11 @@ class MapKnitterExporter
     export.zip = false
     export.jpg = false
     export.save
+
+    # filter out those that have no corner coordinates
+    placed_warpables = warpables.keep_if do |w|
+      w.nodes_array && w.nodes_array.length > 0
+    end
 
     directory = "#{root}/public/warps/#{id}/"
     stdin, stdout, stderr = Open3.popen3('rm -r '+directory.to_s)
