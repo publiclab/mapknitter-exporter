@@ -35,7 +35,7 @@ class ExporterTest < Minitest::Test
       id: 1,
       filename: 'demo.png',
       url: 'test/fixtures/demo.png',
-      nodes_array: nodes_array
+      nodes: nodes_array
     }
     export = MockExport.new()
 
