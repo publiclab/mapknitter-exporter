@@ -63,10 +63,10 @@ class MapKnitterExporter
     end
     
     scale = 20037508.34    
-    y1 = pxperm*Cartagen.spherical_mercator_lat_to_y(northmost,scale.to_f)
-    x1 = pxperm*Cartagen.spherical_mercator_lon_to_x(westmost,scale.to_f)
-    y2 = pxperm*Cartagen.spherical_mercator_lat_to_y(southmost,scale.to_f)
-    x2 = pxperm*Cartagen.spherical_mercator_lon_to_x(eastmost,scale.to_f)
+    y1 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(northmost,scale.to_f)
+    x1 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(westmost,scale.to_f)
+    y2 = pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(southmost,scale.to_f)
+    x2 = pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(eastmost,scale.to_f)
 
     # should determine if it's stored in s3 or locally:
     if (img_url.slice(0,4) == 'http')
@@ -122,8 +122,8 @@ class MapKnitterExporter
       corner = source_corners.shift
       nx1 = corner[0]
       ny1 = corner[1]
-      nx2 = -x1 + (pxperm * Cartagen.spherical_mercator_lon_to_x(node['lon'].to_f, scale.to_f))
-      ny2 =  y1 - (pxperm * Cartagen.spherical_mercator_lat_to_y(node['lat'].to_f, scale.to_f))
+      nx2 = -x1 + (pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(node['lon'].to_f, scale.to_f))
+      ny2 =  y1 - (pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(node['lat'].to_f, scale.to_f))
  
       points = points + '  ' unless first
       maskpoints = maskpoints + ' ' unless first
@@ -142,8 +142,8 @@ class MapKnitterExporter
 
     # close mask polygon:
     maskpoints = maskpoints + ' '
-      nx2 = -x1 + (pxperm * Cartagen.spherical_mercator_lon_to_x(nodes_array.first['lon'].to_f, scale.to_f))
-      ny2 =  y1 - (pxperm * Cartagen.spherical_mercator_lat_to_y(nodes_array.first['lat'].to_f, scale.to_f))
+      nx2 = -x1 + (pxperm.to_f * Cartagen.spherical_mercator_lon_to_x(nodes_array.first['lon'].to_f, scale.to_f))
+      ny2 =  y1 - (pxperm.to_f * Cartagen.spherical_mercator_lat_to_y(nodes_array.first['lat'].to_f, scale.to_f))
     maskpoints = maskpoints + nx2.to_i.to_s + ',' + ny2.to_i.to_s
 
     height = (y1-y2).to_i.to_s
@@ -331,7 +331,7 @@ class MapKnitterExporter
     puts stderr.readlines
 
     puts '> averaging scales; resolution: ' + resolution.to_s
-    pxperm = 100/(resolution).to_f # pixels per meter
+    pxperm = 100/(resolution.to_f) # pixels per meter
     puts '> scale: ' + pxperm.to_s + 'pxperm'
 
     puts '> distorting warpables'
