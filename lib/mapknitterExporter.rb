@@ -263,7 +263,7 @@ class MapKnitterExporter
       end
     end
     first = true
-    if ordered != true && placed_warpables.first.keys.include?('poly_area')
+    if ordered != true && warpables.first.keys.include?('poly_area')
       # sort by area; this would be overridden by a provided order
       warpables = warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
