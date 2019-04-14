@@ -50,16 +50,16 @@ class MapKnitterExporter
     # everything -geo WITH AN ID could be deleted, but there is a feature request to preserve these
     warped_geotiff_location = directory+id.to_s+'-geo.tif'
 
-    northmost = nodes_array.first['lat']
-    southmost = nodes_array.first['lat']
-    westmost =  nodes_array.first['lon']
-    eastmost =  nodes_array.first['lon']
+    northmost = nodes_array.first['lat'].to_f
+    southmost = nodes_array.first['lat'].to_f
+    westmost =  nodes_array.first['lon'].to_f
+    eastmost =  nodes_array.first['lon'].to_f
 
     nodes_array.each do |node|
-      northmost = node['lat'] if node['lat'] > northmost
-      southmost = node['lat'] if node['lat'] < southmost
-      westmost =  node['lon'] if node['lon'] < westmost
-      eastmost =  node['lon'] if node['lon'] > eastmost
+      northmost = node['lat'].to_f if node['lat'].to_f > northmost
+      southmost = node['lat'].to_f if node['lat'].to_f < southmost
+      westmost =  node['lon'].to_f if node['lon'].to_f < westmost
+      eastmost =  node['lon'].to_f if node['lon'].to_f > eastmost
     end
     
     scale = 20037508.34    
