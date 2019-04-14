@@ -1,5 +1,6 @@
 require "minitest/autorun"
 require "./lib/mapknitterExporter"
+require "json"
 
 class ExporterTest < Minitest::Test
   def test_all_functions # break this into separate parts
@@ -13,30 +14,34 @@ class ExporterTest < Minitest::Test
     resolution = 20
     nodes_array = [
       {
-        lat: 41.8403113680142,
-        lon: -71.3983854668186
+        'lat': 41.8403113680142,
+        'lon': -71.3983854668186
       },
       {
-        lat: 41.8397358653566,
-        lon: -71.3916477577732
+        'lat': 41.8397358653566,
+        'lon': -71.3916477577732
       },
       {
-        lat: 41.8351476451765,
-        lon: -71.392699183707
+        'lat': 41.8351476451765,
+        'lon': -71.392699183707
       },
       {
-        lat: 41.8377535388085,
-        lon: -71.3981708900974
+        'lat': 41.8377535388085,
+        'lon': -71.3981708900974
       }
     ]
     image = {
-      height: 20,
-      width: 20,
-      id: 1,
-      filename: 'demo.png',
-      url: 'test/fixtures/demo.png',
-      nodes: nodes_array
+      'height': 20,
+      'width': 20,
+      'id': 1,
+      'filename': 'demo.png',
+      'url': 'test/fixtures/demo.png',
+      'nodes': nodes_array
     }
+
+    # simulate real JSON:
+    image = JSON.parse(image.to_json)
+    nodes_array = JSON.parse(nodes_array.to_json)
     export = MockExport.new()
 
     # make a sample image
@@ -51,10 +56,10 @@ class ExporterTest < Minitest::Test
       scale, 
       id,
       nodes_array,
-      image[:filename],
-      image[:url],
-      image[:height],
-      image[:width],
+      image['filename'],
+      image['url'],
+      image['height'],
+      image['width'],
       '' # root
     )
     assert coords
