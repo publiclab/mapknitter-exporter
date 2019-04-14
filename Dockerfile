@@ -17,16 +17,12 @@ RUN apt-get update -qq && apt-get install -y \
   gdal-bin curl procps git imagemagick python-gdal zip
 RUN sed -i 's/<policy domain="delegate" rights="none" pattern="HTTPS" \/>//g' /etc/ImageMagick-6/policy.xml
 
-# Install bundle of gems
-WORKDIR /tmp
-ADD Gemfile /tmp/Gemfile
-ADD Gemfile.lock /tmp/Gemfile.lock
-RUN bundle install
-
 # Add the Rails app
 ADD . /app
 WORKDIR /app
-COPY Gemfile /app/Gemfile
-COPY Gemfile.lock /app/Gemfile.lock
+
+# Install bundle of gems
+RUN bundle install
+
 
 CMD ruby test/exporter_test.rb
