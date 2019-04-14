@@ -1,4 +1,5 @@
-require './lib/cartagen.rb'
+require 'mapknitter-exporter'
+require 'cartagen'
 require 'open3'
 
 class MapKnitterExporter
