@@ -235,7 +235,7 @@ class MapKnitterExporter
      img_coords = generate_perspectival_distort(
        scale,
        id,
-       image[:nodes_array],
+       image[:nodes],
        image[:filename],
        image[:url],
        image[:height],
