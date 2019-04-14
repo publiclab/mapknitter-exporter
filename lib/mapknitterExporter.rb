@@ -313,71 +313,66 @@ class MapKnitterExporter
   # runs the above map functions while maintaining a record of state in an Export model;
   # we'll be replacing the export model state with a flat status file
   def self.run_export(user_id, resolution, export, id, root, placed_warpables, key)
-    begin
-      export.user_id = user_id if user_id
-      export.status = 'starting'
-      export.tms = false
-      export.geotiff = false
-      export.zip = false
-      export.jpg = false
-      export.save
+    export.user_id = user_id if user_id
+    export.status = 'starting'
+    export.tms = false
+    export.geotiff = false
+    export.zip = false
+    export.jpg = false
+    export.save
 
-      directory = "#{root}/public/warps/#{id}/"
-      stdin, stdout, stderr = Open3.popen3('rm -r '+directory.to_s)
-      puts stdout.readlines
-      puts stderr.readlines
-      stdin, stdout, stderr = Open3.popen3("rm -r #{root}/public/tms/#{id}")
-      puts stdout.readlines
-      puts stderr.readlines
+    directory = "#{root}/public/warps/#{id}/"
+    stdin, stdout, stderr = Open3.popen3('rm -r '+directory.to_s)
+    puts stdout.readlines
+    puts stderr.readlines
+    stdin, stdout, stderr = Open3.popen3("rm -r #{root}/public/tms/#{id}")
+    puts stdout.readlines
+    puts stderr.readlines
 
-      puts '> averaging scales; resolution: ' + resolution.to_s
-      pxperm = 100/(resolution).to_f # pixels per meter
-      puts '> scale: ' + pxperm.to_s + 'pxperm'
+    puts '> averaging scales; resolution: ' + resolution.to_s
+    pxperm = 100/(resolution).to_f # pixels per meter
+    puts '> scale: ' + pxperm.to_s + 'pxperm'
 
-      puts '> distorting warpables'
+    puts '> distorting warpables'
     
-      origin = self.distort_warpables(pxperm, placed_warpables, export, id)
-      warpable_coords = origin.pop
+    origin = self.distort_warpables(pxperm, placed_warpables, export, id)
+    warpable_coords = origin.pop
 
-      export.status = 'compositing'
-      export.save
+    export.status = 'compositing'
+    export.save
 
-      puts '> generating composite tiff'
-      composite_location = self.generate_composite_tiff(warpable_coords,origin,placed_warpables,id,false) # no ordering yet
+    puts '> generating composite tiff'
+    composite_location = self.generate_composite_tiff(warpable_coords,origin,placed_warpables,id,false) # no ordering yet
 
-      info = (`identify -quiet -format '%b,%w,%h' #{composite_location}`).split(',')
-      puts info
+    info = (`identify -quiet -format '%b,%w,%h' #{composite_location}`).split(',')
+    puts info
 
-      if info[0] != ''
-        export.geotiff = true
-        export.size = info[0]
-        export.width = info[1]
-        export.height = info[2]
-        export.cm_per_pixel = 100.0000/pxperm
-        export.status = 'tiling'
-        export.save
-      end
-
-      puts '> generating tiles'
-      export.tms = true if self.generate_tiles(key, id, root)
-      export.status = 'zipping tiles'
-      export.save
-
-      puts '> zipping tiles'
-      export.zip = true if self.zip_tiles(id)
-      export.status = 'creating jpg'
-      export.save
-
-      puts '> generating jpg'
-      export.jpg = true if self.generate_jpg(id, root)
-      export.status = 'complete'
-      export.save
-
-    rescue SystemCallError
-      export.status = 'failed'
+    if info[0] != ''
+      export.geotiff = true
+      export.size = info[0]
+      export.width = info[1]
+      export.height = info[2]
+      export.cm_per_pixel = 100.0000/pxperm
+      export.status = 'tiling'
       export.save
     end
-    return export.status
+
+    puts '> generating tiles'
+    export.tms = true if self.generate_tiles(key, id, root)
+    export.status = 'zipping tiles'
+    export.save
+
+    puts '> zipping tiles'
+    export.zip = true if self.zip_tiles(id)
+    export.status = 'creating jpg'
+    export.save
+
+    puts '> generating jpg'
+    export.jpg = true if self.generate_jpg(id, root)
+    export.status = 'complete'
+    export.save
+
+    export.status
   end
 
 end
