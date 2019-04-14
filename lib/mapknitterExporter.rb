@@ -234,8 +234,8 @@ class MapKnitterExporter
        image['nodes'],
        image['image_file_name'],
        image['src'],
-       image['height'],
-       image['width']
+       image['height'].to_i,
+       image['width'].to_i
      )
      puts '- '+img_coords.to_s
      all_coords << img_coords
@@ -308,7 +308,7 @@ class MapKnitterExporter
 
   # runs the above map functions while maintaining a record of state in an Export model;
   # we'll be replacing the export model state with a flat status file
-  def self.run_export(user_id, resolution, export, id, root, warpables, key)
+  def self.run_export(user_id, resolution, export, id, root, warpables, key, ordered = false)
     export.user_id = user_id if user_id
     export.status = 'starting'
     export.tms = false
@@ -343,7 +343,13 @@ class MapKnitterExporter
     export.save
 
     puts '> generating composite tiff'
-    composite_location = self.generate_composite_tiff(warpable_coords,origin,placed_warpables,id,false) # no ordering yet
+    composite_location = self.generate_composite_tiff(
+      warpable_coords,
+      origin,
+      placed_warpables,
+      id,
+      ordered
+    )
 
     info = (`identify -quiet -format '%b,%w,%h' #{composite_location}`).split(',')
     puts info
