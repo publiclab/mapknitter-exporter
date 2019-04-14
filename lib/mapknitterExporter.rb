@@ -323,7 +323,7 @@ class MapKnitterExporter
 
     # filter out those that have no corner coordinates
     placed_warpables = warpables.keep_if do |w|
-      w.['nodes'] && w['nodes'].length > 0
+      w['nodes'] && w['nodes'].length > 0
     end
 
     directory = "#{root}/public/warps/#{id}/"
