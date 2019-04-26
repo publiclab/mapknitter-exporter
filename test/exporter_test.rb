@@ -111,7 +111,9 @@ class ExporterTest < Minitest::Test
       [image],
       ''
     )
-
+    assert File.file?("public/warps/#{id}/#{id}-geo.tif")
+    assert File.file?("public/warps/#{id}/#{id}.jpg")
+  
     # test deletion of the files; they were already deleted in run_export, 
     # so let's make new dummy ones:
     # make a sample image
