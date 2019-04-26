@@ -290,6 +290,7 @@ class MapKnitterExporter
     gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}-geo.tif public/tms/#{id}/"
     puts gdal2tiles
     system(self.ulimit+gdal2tiles)
+    "public/tms/#{id}/"
   end
 
   # zips up tiles at public/tms/<id>.zip;
@@ -298,12 +299,14 @@ class MapKnitterExporter
     system(rmzip)
     zip = "cd public/tms/ && #{self.ulimit} zip -rq #{id}.zip #{id}/ && cd ../../"
     system(zip)
+    "public/tms/#{id}.zip"
   end
 
   # generates a tileset at public/tms/<id>/
   def self.generate_jpg(id, root)
     imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}-geo.tif #{root}/public/warps/#{id}/#{id}.jpg"
     system(self.ulimit+imageMagick)
+    "public/warps/#{id}/#{id}.jpg"
   end
 
   # runs the above map functions while maintaining a record of state in an Export model;
