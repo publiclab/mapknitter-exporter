@@ -101,6 +101,8 @@ class ExporterTest < Minitest::Test
 
     assert MapKnitterExporter.generate_jpg(id, '.') # '.' as root
 
+    export = MockExport.new()
+    
     # run_export(user_id, resolution, export, id, root, placed_warpables, key)
     assert MapKnitterExporter.run_export(
       user_id,
@@ -111,6 +113,10 @@ class ExporterTest < Minitest::Test
       [image],
       ''
     )
+    
+    assert_equal "public/warps/#{id}/#{id}-geo.tif", export.geotiff
+    assert_equal "public/warps/#{id}/#{id}.jpg", export.jpg
+
     assert File.file?("public/warps/#{id}/#{id}-geo.tif")
     assert File.file?("public/warps/#{id}/#{id}.jpg")
   
