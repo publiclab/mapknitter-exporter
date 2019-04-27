@@ -10,7 +10,6 @@ class ExporterTest < Minitest::Test
     scale = 2
     # replace map.export with a simple Export object, maybe a Mock?
     # https://github.com/seattlerb/minitest#mocks
-    root = "" # instead of default https://mapknitter.org, bc image is local
     resolution = 20
     nodes_array = [
       {
@@ -59,8 +58,7 @@ class ExporterTest < Minitest::Test
       image['image_file_name'],
       image['src'],
       image['height'],
-      image['width'],
-      '' # root
+      image['width']
     )
     assert coords
     assert MapKnitterExporter.get_working_directory(id)
@@ -93,23 +91,28 @@ class ExporterTest < Minitest::Test
       ordered
     )
 
-    assert MapKnitterExporter.generate_tiles('', id, root)
+    tiles =  MapKnitterExporter.generate_tiles('', id)
+    assert tiles
+    assert_equal "public/tms/#{id}/", tiles
 
     system("mkdir -p public/tms/#{id}")
     system("touch public/tms/#{id}/#{id}.zip")
-    assert MapKnitterExporter.zip_tiles(id)
+    zip = MapKnitterExporter.zip_tiles(id)
+    assert zip
+    assert_equal "public/tms/#{id}/#{id}.zip", zip
 
-    assert MapKnitterExporter.generate_jpg(id, '.') # '.' as root
+    jpg = MapKnitterExporter.generate_jpg(id)
+    assert jpg
+    assert_equal "public/warps/#{id}/#{id}.jpg", jpg
 
     export = MockExport.new()
     
-    # run_export(user_id, resolution, export, id, root, placed_warpables, key)
+    # run_export(user_id, resolution, export, id, placed_warpables, key)
     assert MapKnitterExporter.run_export(
       user_id,
       resolution,
       export,
       id,
-      root,
       [image],
       ''
     )
