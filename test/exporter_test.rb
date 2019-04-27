@@ -99,11 +99,13 @@ class ExporterTest < Minitest::Test
     system("touch public/tms/#{id}/#{id}.zip")
     zip = MapKnitterExporter.zip_tiles(id)
     assert zip
-    assert_equal "public/tms/#{id}/#{id}.zip", zip
+    assert_equal "public/tms/#{id}.zip", zip
+    assert File.file?("public/tms/#{id}.zip")
 
     jpg = MapKnitterExporter.generate_jpg(id)
     assert jpg
     assert_equal "public/warps/#{id}/#{id}.jpg", jpg
+    assert File.file?("public/warps/#{id}.jpg")
 
     export = MockExport.new()
     
