@@ -34,21 +34,21 @@ class MapKnitterExporter
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
-    local_location = "#{working_directory}#{id}-#{image_file_name}"
+    local_location = "#{working_directory}w#{id}-#{image_file_name}"
 
     directory = warps_directory(id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
-    completed_local_location = directory+id.to_s+'.png'
+    completed_local_location = directory + 'w' + id.to_s+'.png'
 
     # everything -masked.png can be deleted
-    masked_local_location = directory+id.to_s+'-masked.png'
+    masked_local_location = directory + 'w' + id.to_s + '-masked.png'
     # everything -mask.png can be deleted
-    mask_location = directory+id.to_s+'-mask.png'
+    mask_location = directory + 'w' + id.to_s + '-mask.png'
     #completed_local_location = directory+id.to_s+'.tif'
     # know everything -unwarped can be deleted
-    geotiff_location = directory+id.to_s+'-geo-unwarped.tif'
+    geotiff_location = directory + 'w' + id.to_s + '-geo-unwarped.tif'
     # everything -geo WITH AN ID could be deleted, but there is a feature request to preserve these
-    warped_geotiff_location = directory+id.to_s+'-geo.tif'
+    warped_geotiff_location = directory + 'w' + id.to_s + '-geo.tif'
 
     northmost = nodes_array.first['lat'].to_f
     southmost = nodes_array.first['lat'].to_f
@@ -268,7 +268,7 @@ class MapKnitterExporter
       warpables = warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
     warpables.each do |warpable|
-      wid = warpable['id'].to_s
+      wid = "w" + warpable['id'].to_s
       geotiffs += ' '+directory+wid+'-geo.tif'
       if first
         gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
