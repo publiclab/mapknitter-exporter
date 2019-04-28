@@ -105,7 +105,7 @@ class ExporterTest < Minitest::Test
     jpg = MapKnitterExporter.generate_jpg(id)
     assert jpg
     assert_equal "public/warps/#{id}/#{id}.jpg", jpg
-    assert File.file?("public/warps/#{id}.jpg")
+    assert File.file?("public/warps/#{id}/#{id}.jpg")
 
     export = MockExport.new()
     
