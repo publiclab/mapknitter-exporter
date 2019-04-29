@@ -363,11 +363,13 @@ class MapKnitterExporter
       ordered
     )
 
-    info = (`identify -quiet -format '%b,%w,%h' #{composite_location}`).split(',')
+    identify = "identify -quiet -format '%b,%w,%h' #{composite_location}"
+    puts identify
+    info = (`#{identify}`).split(',')
     puts info
 
     if info[0] != ''
-      export.geotiff = true
+      export.geotiff = composite_location
       export.size = info[0]
       export.width = info[1]
       export.height = info[2]
