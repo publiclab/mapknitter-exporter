@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = 'mapknitter-exporter'
-  s.version     = '0.0.5'
-  s.date        = '2019-04-14'
+  s.version     = '1.0.0'
+  s.date        = '2019-04-29'
   s.summary     = "The GDAL/ImageMagick-based exporter system from MapKnitter"
   s.description = "The GDAL/ImageMagick-based exporter system from MapKnitter"
   s.authors     = ["Jeffrey Warren"]
