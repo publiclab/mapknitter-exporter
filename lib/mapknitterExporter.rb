@@ -27,28 +27,28 @@ class MapKnitterExporter
   ## Run on each image:
 
   # pixels per meter = pxperm 
-  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, root = "https://mapknitter.org")
+  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width)
     require 'net/http'
 
     # everything in -working/ can be deleted; 
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
-    local_location = "#{working_directory}#{id}-#{image_file_name}"
+    local_location = "#{working_directory}w#{id}-#{image_file_name}"
 
     directory = warps_directory(id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
-    completed_local_location = directory+id.to_s+'.png'
+    completed_local_location = directory + 'w' + id.to_s+'.png'
 
     # everything -masked.png can be deleted
-    masked_local_location = directory+id.to_s+'-masked.png'
+    masked_local_location = directory + 'w' + id.to_s + '-masked.png'
     # everything -mask.png can be deleted
-    mask_location = directory+id.to_s+'-mask.png'
+    mask_location = directory + 'w' + id.to_s + '-mask.png'
     #completed_local_location = directory+id.to_s+'.tif'
     # know everything -unwarped can be deleted
-    geotiff_location = directory+id.to_s+'-geo-unwarped.tif'
+    geotiff_location = directory + 'w' + id.to_s + '-geo-unwarped.tif'
     # everything -geo WITH AN ID could be deleted, but there is a feature request to preserve these
-    warped_geotiff_location = directory+id.to_s+'-geo.tif'
+    warped_geotiff_location = directory + 'w' + id.to_s + '-geo.tif'
 
     northmost = nodes_array.first['lat'].to_f
     southmost = nodes_array.first['lat'].to_f
@@ -268,7 +268,7 @@ class MapKnitterExporter
       warpables = warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
     warpables.each do |warpable|
-      wid = warpable['id'].to_s
+      wid = "w" + warpable['id'].to_s
       geotiffs += ' '+directory+wid+'-geo.tif'
       if first
         gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
@@ -282,14 +282,17 @@ class MapKnitterExporter
     composite_location
   end
 
-  # generates a tileset at root/public/tms/<id>/
-  # root is something like https://mapknitter.org
-  def self.generate_tiles(key, id, root)
+  # generates a tileset at public/tms/<id>/
+  def self.generate_tiles(key, id)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key = key || "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
     gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}-geo.tif public/tms/#{id}/"
     puts gdal2tiles
-    system(self.ulimit+gdal2tiles)
+    if system(self.ulimit+gdal2tiles)
+      "public/tms/#{id}/"
+    else
+      false
+    end
   end
 
   # zips up tiles at public/tms/<id>.zip;
@@ -297,20 +300,29 @@ class MapKnitterExporter
     rmzip = "cd public/tms/ && rm #{id}.zip && cd ../../"
     system(rmzip)
     zip = "cd public/tms/ && #{self.ulimit} zip -rq #{id}.zip #{id}/ && cd ../../"
-    system(zip)
+    if system(zip)
+      "public/tms/#{id}.zip"
+    else
+      false
+    end
   end
 
   # generates a tileset at public/tms/<id>/
-  def self.generate_jpg(id, root)
-    imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}-geo.tif #{root}/public/warps/#{id}/#{id}.jpg"
-    system(self.ulimit+imageMagick)
+  def self.generate_jpg(id)
+    imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}-geo.tif public/warps/#{id}/#{id}.jpg"
+    if system(self.ulimit+imageMagick)
+      "public/warps/#{id}/#{id}.jpg"
+    else
+      false
+    end
   end
 
   # runs the above map functions while maintaining a record of state in an Export model;
   # we'll be replacing the export model state with a flat status file
-  def self.run_export(user_id, resolution, export, id, root, warpables, key, ordered = false)
+  def self.run_export(user_id, resolution, export, id, warpables, key, ordered = false)
     export.user_id = user_id if user_id
     export.status = 'starting'
+    # we set these false again later...
     export.tms = false
     export.geotiff = false
     export.zip = false
@@ -322,11 +334,11 @@ class MapKnitterExporter
       w['nodes'] && w['nodes'].length > 0
     end
 
-    directory = "#{root}/public/warps/#{id}/"
+    directory = "public/warps/#{id}/"
     stdin, stdout, stderr = Open3.popen3('rm -r '+directory.to_s)
     puts stdout.readlines
     puts stderr.readlines
-    stdin, stdout, stderr = Open3.popen3("rm -r #{root}/public/tms/#{id}")
+    stdin, stdout, stderr = Open3.popen3("rm -r public/tms/#{id}")
     puts stdout.readlines
     puts stderr.readlines
 
@@ -351,33 +363,47 @@ class MapKnitterExporter
       ordered
     )
 
-    info = (`identify -quiet -format '%b,%w,%h' #{composite_location}`).split(',')
+    identify = "identify -quiet -format '%b,%w,%h' #{composite_location}"
+    puts identify
+    info = (`#{identify}`).split(',')
     puts info
 
     if info[0] != ''
-      export.geotiff = true
+      export.geotiff = composite_location
       export.size = info[0]
       export.width = info[1]
       export.height = info[2]
-      export.cm_per_pixel = 100.0000/pxperm
-      export.status = 'tiling'
+      export.cm_per_pixel = 100.0000 / pxperm
       export.save
     end
 
+    # this could be forked
     puts '> generating tiles'
-    export.tms = true if self.generate_tiles(key, id, root)
-    export.status = 'zipping tiles'
+    export.tms = false
+    export.status = 'tiling'
     export.save
+    export.tms = self.generate_tiles(key, id)
+    export.save unless export.tms == false
 
     puts '> zipping tiles'
-    export.zip = true if self.zip_tiles(id)
+    export.zip = false
+    export.status = 'zipping tiles'
+    export.save
+    export.zip = self.zip_tiles(id)
+    export.save unless export.zip == false
+    # end fork
+
+    # this could be forked
+    puts '> generating jpg'
+    export.jpg = false
     export.status = 'creating jpg'
     export.save
-
-    puts '> generating jpg'
-    export.jpg = true if self.generate_jpg(id, root)
-    export.status = 'complete'
-    export.save
+    export.jpg = self.generate_jpg(id)
+    unless export.jpg == false
+      export.status = 'complete'
+      export.save
+    end
+    # end fork
 
     export.status
   end
