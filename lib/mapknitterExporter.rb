@@ -405,7 +405,7 @@ class MapKnitterExporter
     end
     # end fork
 
-    export.status
+    export
   end
 
 end
