@@ -5,7 +5,7 @@ require "json"
 class ExporterTest < Minitest::Test
   def test_all_functions # TODO: break this into separate parts
 
-    id = 1
+    id = 99
     user_id = 1
     scale = 2
     # replace map.export with a simple Export object, maybe a Mock?
@@ -53,12 +53,13 @@ class ExporterTest < Minitest::Test
 
     coords = MapKnitterExporter.generate_perspectival_distort(
       scale, 
-      id,
+      image['id'],
       nodes_array,
       image['image_file_name'],
       image['src'],
       image['height'],
-      image['width']
+      image['width'],
+      id
     )
     assert coords
     assert MapKnitterExporter.get_working_directory(id)
