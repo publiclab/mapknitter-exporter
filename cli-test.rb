@@ -13,4 +13,4 @@ end
 
 export = Export.new
 
-MapKnitterExporter.run_export(1,20,export,1,data,'')
+MapKnitterExporter.run_export(1,20,export,1,data,'',99)
