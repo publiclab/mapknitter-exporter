@@ -219,7 +219,7 @@ class MapKnitterExporter
     lowest_y = 0
     all_coords = []
     current = 0
-    images.each do |image|
+    images.each_with_index do |image, index|
      current += 1
 
      ## TODO: refactor to generate static status file:
@@ -227,10 +227,11 @@ class MapKnitterExporter
      puts 'warping '+current.to_s+' of '+images.length.to_s
      export.save
      ## 
+     image['id'] = image['id'] || index
 
      img_coords = generate_perspectival_distort(
        scale,
-       id,
+       image['id'],
        image['nodes'],
        image['image_file_name'],
        image['src'],

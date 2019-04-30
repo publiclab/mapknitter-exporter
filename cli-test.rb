@@ -1,4 +1,4 @@
-require "mapknitterExporter"
+require "./lib/mapknitterExporter"
 require "json"
 require "open-uri"
 
@@ -13,4 +13,4 @@ end
 
 export = Export.new
 
-MapKnitterExporter.run_export(1,20,export,1,'.',data,'')
+MapKnitterExporter.run_export(1,20,export,1,data,'')
