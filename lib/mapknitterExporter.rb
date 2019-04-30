@@ -27,7 +27,7 @@ class MapKnitterExporter
   ## Run on each image:
 
   # pixels per meter = pxperm 
-  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width)
+  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id)
     require 'net/http'
 
     # everything in -working/ can be deleted; 
@@ -36,7 +36,7 @@ class MapKnitterExporter
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
     local_location = "#{working_directory}w#{id}-#{image_file_name}"
 
-    directory = warps_directory(id)
+    directory = warps_directory(collection_id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
     completed_local_location = directory + 'w' + id.to_s+'.png'
 
@@ -236,7 +236,8 @@ class MapKnitterExporter
        image['image_file_name'],
        image['src'],
        image['height'].to_i,
-       image['width'].to_i
+       image['width'].to_i,
+       id # collection id
      )
      puts '- '+img_coords.to_s
      all_coords << img_coords
