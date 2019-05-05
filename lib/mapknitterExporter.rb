@@ -32,7 +32,7 @@ class MapKnitterExporter
 
     # everything in -working/ can be deleted; 
     # this is just so we can use the files locally outside of s3
-    working_directory = get_working_directory(id)
+    working_directory = get_working_directory(collection_id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
     local_location = "#{working_directory}w#{id}-#{image_file_name}"
 
