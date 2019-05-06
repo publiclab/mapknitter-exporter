@@ -66,7 +66,7 @@ class ExporterTest < Minitest::Test
     assert MapKnitterExporter.warps_directory(id)
 
     # get rid of existing geotiff
-    system("rm -r public/warps/#{id}/1-geo.tif")
+    system("rm -r public/warps/#{id}/1.tif")
     # make a sample image
     system('mkdir -p public/system/images/1/original/')
     system('cp test/fixtures/demo.png public/system/images/1/original/test.png')
@@ -121,10 +121,10 @@ class ExporterTest < Minitest::Test
     )
     assert_equal "complete", output_export.status
     
-    assert_equal "public/warps/#{id}/#{id}-geo.tif", export.geotiff
+    assert_equal "public/warps/#{id}/#{id}.tif", export.geotiff
     assert_equal "public/warps/#{id}/#{id}.jpg", export.jpg
 
-    assert File.file?("public/warps/#{id}/#{id}-geo.tif")
+    assert File.file?("public/warps/#{id}/#{id}.tif")
     assert File.file?("public/warps/#{id}/#{id}.jpg")
   
     # test deletion of the files; they were already deleted in run_export, 
