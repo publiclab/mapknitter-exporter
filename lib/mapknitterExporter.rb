@@ -48,7 +48,7 @@ class MapKnitterExporter
     # know everything -unwarped can be deleted
     geotiff_location = directory + 'w' + id.to_s + '-geo-unwarped.tif'
     # everything -geo WITH AN ID could be deleted, but there is a feature request to preserve these
-    warped_geotiff_location = directory + 'w' + id.to_s + '-geo.tif'
+    warped_geotiff_location = directory + 'w' + id.to_s + '.tif'
 
     northmost = nodes_array.first['lat'].to_f
     southmost = nodes_array.first['lat'].to_f
@@ -250,7 +250,7 @@ class MapKnitterExporter
   # generate a tiff from all warpable images in this set
   def self.generate_composite_tiff(coords, origin, warpables, id, ordered)
     directory = "public/warps/#{id}/"
-    composite_location = directory + id.to_s + '-geo.tif'
+    composite_location = directory + id.to_s + '.tif'
     geotiffs = ''
     minlat = nil
     minlon = nil
@@ -271,12 +271,12 @@ class MapKnitterExporter
     end
     warpables.each do |warpable|
       wid = "w" + warpable['id'].to_s
-      geotiffs += ' '+directory+wid+'-geo.tif'
+      geotiffs += ' '+directory+wid+'.tif'
       if first
-        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
+        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}.tif #{directory}#{id}.tif"
         first = false
       else
-        gdalwarp = "gdalwarp #{directory}#{wid}-geo.tif #{directory}#{id}-geo.tif"
+        gdalwarp = "gdalwarp #{directory}#{wid}.tif #{directory}#{id}.tif"
       end
       puts gdalwarp
       system(self.ulimit+gdalwarp)
@@ -288,7 +288,7 @@ class MapKnitterExporter
   def self.generate_tiles(key, id)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key = key || "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}-geo.tif public/tms/#{id}/"
+    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}.tif public/tms/#{id}/"
     puts gdal2tiles
     if system(self.ulimit+gdal2tiles)
       "public/tms/#{id}/"
@@ -311,7 +311,7 @@ class MapKnitterExporter
 
   # generates a tileset at public/tms/<id>/
   def self.generate_jpg(id)
-    imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}-geo.tif public/warps/#{id}/#{id}.jpg"
+    imageMagick = "convert -background white -flatten public/warps/#{id}/#{id}.tif public/warps/#{id}/#{id}.jpg"
     if system(self.ulimit+imageMagick)
       "public/warps/#{id}/#{id}.jpg"
     else
