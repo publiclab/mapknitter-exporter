@@ -222,7 +222,6 @@ class MapKnitterExporter
     images.each_with_index do |image, index|
      current += 1
 
-     ## TODO: refactor to generate static status file:
      export.status = 'warping '+current.to_s+' of '+images.length.to_s
      puts 'warping '+current.to_s+' of '+images.length.to_s
      export.save
@@ -256,14 +255,16 @@ class MapKnitterExporter
     minlon = nil
     maxlat = nil
     maxlon = nil
-    warpables.each do |warpable|
+    warpables.each_with_index do |warpable, i|
       warpable['nodes'].each do |n|
-        minlat = n['lat'] if minlat == nil || n['lat'] < minlat
-        minlon = n['lon'] if minlon == nil || n['lon'] < minlon
-        maxlat = n['lat'] if maxlat == nil || n['lat'] > maxlat
-        maxlon = n['lon'] if maxlon == nil || n['lon'] > maxlon
+        puts "warpable: ", n['id'], i, n['lat'], n['lon']
+        minlat = n['lat'].to_f if minlat == nil || n['lat'].to_f < minlat
+        minlon = n['lon'].to_f if minlon == nil || n['lon'].to_f < minlon
+        maxlat = n['lat'].to_f if maxlat == nil || n['lat'].to_f > maxlat
+        maxlon = n['lon'].to_f if maxlon == nil || n['lon'].to_f > maxlon
       end
     end
+    puts "minlat #{minlat}, minlon #{minlon}, maxlat #{maxlat}, maxlon #{maxlon}"
     first = true
     if ordered != true && warpables.first.keys.include?('poly_area')
       # sort by area; this would be overridden by a provided order
