@@ -255,8 +255,9 @@ class MapKnitterExporter
     minlon = nil
     maxlat = nil
     maxlon = nil
-    warpables.each do |warpable|
+    warpables.each_with_index do |i, warpable|
       warpable['nodes'].each do |n|
+        puts "warpable: ", n['id'], i, n['lat'], n['lon']
         minlat = n['lat'] if minlat == nil || n['lat'] < minlat
         minlon = n['lon'] if minlon == nil || n['lon'] < minlon
         maxlat = n['lat'] if maxlat == nil || n['lat'] > maxlat
