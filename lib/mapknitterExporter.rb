@@ -255,13 +255,13 @@ class MapKnitterExporter
     minlon = nil
     maxlat = nil
     maxlon = nil
-    warpables.each_with_index do |i, warpable|
+    warpables.each_with_index do |warpable, i|
       warpable['nodes'].each do |n|
         puts "warpable: ", n['id'], i, n['lat'], n['lon']
-        minlat = n['lat'] if minlat == nil || n['lat'] < minlat
-        minlon = n['lon'] if minlon == nil || n['lon'] < minlon
-        maxlat = n['lat'] if maxlat == nil || n['lat'] > maxlat
-        maxlon = n['lon'] if maxlon == nil || n['lon'] > maxlon
+        minlat = n['lat'].to_f if minlat == nil || n['lat'].to_f < minlat
+        minlon = n['lon'].to_f if minlon == nil || n['lon'].to_f < minlon
+        maxlat = n['lat'].to_f if maxlat == nil || n['lat'].to_f > maxlat
+        maxlon = n['lon'].to_f if maxlon == nil || n['lon'].to_f > maxlon
       end
     end
     puts "minlat #{minlat}, minlon #{minlon}, maxlat #{maxlat}, maxlon #{maxlon}"
