@@ -34,8 +34,8 @@ class MapKnitterExporter
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(collection_id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
-    local_location = "#{working_directory}w#{id}-#{image_file_name}"
-
+    require "shellwords"
+    local_location = Shellwords.escape("#{working_directory}w#{id}-#{image_file_name}")
     directory = warps_directory(collection_id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
     completed_local_location = directory + 'w' + id.to_s+'.png'
