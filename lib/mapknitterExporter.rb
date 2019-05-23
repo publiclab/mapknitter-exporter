@@ -250,7 +250,6 @@ class MapKnitterExporter
   def self.generate_composite_tiff(coords, origin, warpables, id, ordered)
     directory = "public/warps/#{id}/"
     composite_location = directory + id.to_s + '.tif'
-    geotiffs = ''
     minlat = nil
     minlon = nil
     maxlat = nil
@@ -270,18 +269,14 @@ class MapKnitterExporter
       # sort by area; this would be overridden by a provided order
       warpables = warpables.sort{ |a,b| b['poly_area'] <=> a['poly_area'] }
     end
+    geotiffs = ""
     warpables.each do |warpable|
       wid = "w" + warpable['id'].to_s
       geotiffs += ' '+directory+wid+'.tif'
-      if first
-        gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{directory}#{wid}.tif #{directory}#{id}.tif"
-        first = false
-      else
-        gdalwarp = "gdalwarp #{directory}#{wid}.tif #{directory}#{id}.tif"
-      end
-      puts gdalwarp
-      system(self.ulimit+gdalwarp)
     end
+    gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{geotiffs} #{directory}#{id}.tif"
+    puts gdalwarp
+    system(self.ulimit+gdalwarp)
     composite_location
   end
 
