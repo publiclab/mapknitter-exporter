@@ -35,7 +35,7 @@ class MapKnitterExporter
     working_directory = get_working_directory(collection_id)
     Dir.mkdir(working_directory) unless (File.exists?(working_directory) && File.directory?(working_directory))
     require "shellwords"
-    local_location = Shellwords.escape("#{working_directory}w#{id}-#{image_file_name}")
+    local_location = "#{working_directory}w#{id}-#{image_file_name}"
     directory = warps_directory(collection_id)
     Dir.mkdir(directory) unless (File.exists?(directory) && File.directory?(directory))
     completed_local_location = directory + 'w' + id.to_s+'.png'
@@ -98,7 +98,7 @@ class MapKnitterExporter
 #7  right side  bottom
 #8  left side  bottom
   
-  rotation = (`identify -format %[exif:Orientation] #{local_location}`).to_i  
+  rotation = (`identify -format %[exif:Orientation] #{local_location.shellescape}`).to_i  
   #stdin, stdout, stderr = Open3.popen3('identify -format %[exif:Orientation] #{local_location}')
   #rotation = stdout.readlines.first.to_s.to_i
   #puts stderr.readlines
@@ -157,7 +157,7 @@ class MapKnitterExporter
 
     imageMagick = "convert "
     imageMagick += "-contrast-stretch 0 "
-    imageMagick += local_location+" "
+    imageMagick += local_location.shellescape+" "
     imageMagick += "-crop "+maxdimension.to_i.to_s+"x"+maxdimension.to_i.to_s+"+0+0! "
     imageMagick += "-flatten "
     imageMagick += "-distort Perspective '"+points+"' "
