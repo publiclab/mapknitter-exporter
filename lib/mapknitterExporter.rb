@@ -30,6 +30,7 @@ class MapKnitterExporter
   def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id)
     require 'net/http'
 
+    image_file_name ||= img_url.split('.').last
     # everything in -working/ can be deleted; 
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(collection_id)
