@@ -71,8 +71,8 @@ class MapKnitterExporter
 
     # should determine if it's stored in s3 or locally:
     if (img_url.slice(0,4) == 'http')
-      Net::HTTP.start('s3.amazonaws.com') { |http|
-      #Net::HTTP.start('localhost') { |http|
+      host = img_url.split('//').last.split('/').first
+      Net::HTTP.start(host) { |http|
         resp = http.get(img_url)
         open(local_location, "wb") { |file|
           file.write(resp.body)
