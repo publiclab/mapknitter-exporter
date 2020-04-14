@@ -17,7 +17,7 @@ cache:
    - vendor/.bundle
 
 install:
-  - sudo ./scripts/install-deps.sh
+  - sudo ./scripts/install-deps.sh > /dev/null
   - bundle install --path vendor/.bundle
 
 jobs:
