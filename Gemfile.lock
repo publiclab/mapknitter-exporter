@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mapknitter-exporter (1.0.9)
+    mapknitter_exporter (1.0.9)
 
 GEM
   remote: https://rubygems.org/
@@ -29,7 +29,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  mapknitter-exporter!
+  mapknitter_exporter!
   minitest (~> 5.11.3)
   rubocop (~> 0.70.0)
   rubocop-performance

@@ -1,11 +1,11 @@
 # MapKnitterExporter
 
-Add this gem with `gem install mapknitter-exporter`
+Add this gem with `gem install mapknitter_exporter`
 
 Then, use it with:
 
 ```ruby
-require 'mapknitter-exporter'
+require 'mapknitter_exporter'
 
 # this should work:
 
