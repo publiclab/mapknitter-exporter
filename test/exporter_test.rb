@@ -1,10 +1,9 @@
 require "minitest/autorun"
-require "./lib/mapknitterExporter"
+require "./lib/exporter"
 require "json"
 
 class ExporterTest < Minitest::Test
   def test_all_functions # TODO: break this into separate parts
-
     id = 99
     user_id = 1
     scale = 2
@@ -41,7 +40,7 @@ class ExporterTest < Minitest::Test
     # simulate real JSON:
     image = JSON.parse(image.to_json)
     nodes_array = JSON.parse(nodes_array.to_json)
-    export = MockExport.new()
+    export = MockExport.new
 
     # make a sample image
     system('mkdir -p public/system/images/1/original')
@@ -52,7 +51,7 @@ class ExporterTest < Minitest::Test
     assert File.exist?("public/warps/#{id}/folder")
 
     coords = MapKnitterExporter.generate_perspectival_distort(
-      scale, 
+      scale,
       image['id'],
       nodes_array,
       image['image_file_name'],
@@ -92,7 +91,7 @@ class ExporterTest < Minitest::Test
       ordered
     )
 
-    tiles =  MapKnitterExporter.generate_tiles('', id)
+    tiles = MapKnitterExporter.generate_tiles('', id)
     assert tiles
     assert_equal "public/tms/#{id}/", tiles
 
@@ -108,8 +107,8 @@ class ExporterTest < Minitest::Test
     assert_equal "public/warps/#{id}/#{id}.jpg", jpg
     assert File.file?("public/warps/#{id}/#{id}.jpg")
 
-    export = MockExport.new()
-    
+    export = MockExport.new
+
     # run_export(user_id, resolution, export, id, placed_warpables, key)
     output_export = MapKnitterExporter.run_export(
       user_id,
@@ -120,14 +119,14 @@ class ExporterTest < Minitest::Test
       ''
     )
     assert_equal "complete", output_export.status
-    
+
     assert_equal "public/warps/#{id}/#{id}.tif", export.geotiff
     assert_equal "public/warps/#{id}/#{id}.jpg", export.jpg
 
     assert File.file?("public/warps/#{id}/#{id}.tif")
     assert File.file?("public/warps/#{id}/#{id}.jpg")
-  
-    # test deletion of the files; they were already deleted in run_export, 
+
+    # test deletion of the files; they were already deleted in run_export,
     # so let's make new dummy ones:
     # make a sample image
     system('mkdir -p public/system/images/1/original/')
@@ -144,11 +143,9 @@ class ExporterTest < Minitest::Test
 end
 
 class MockExport
-
   attr_accessor :status, :tms, :geotiff, :zip, :jpg, :user_id, :size, :width, :height, :cm_per_pixel
 
   def save
     puts "saved"
   end
-
 end
