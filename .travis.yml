@@ -10,6 +10,11 @@ rvm:
 services:
   - docker
 
+branches:
+   only:
+    - main
+    - unstable
+
 cache:
   directories:
    - /usr/share
