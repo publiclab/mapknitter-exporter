@@ -26,3 +26,8 @@ jobs:
       script: bundle exec ruby test/exporter_test.rb
     - name: "Docker Build"
       script: docker build . -t lib-mapknitter-exporter:latest
+
+branches:
+   only:
+    - main
+    - unstable
