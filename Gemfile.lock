@@ -7,7 +7,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     ast (2.4.1)
-    minitest (5.11.3)
+    minitest (5.14.1)
     parallel (1.19.2)
     parser (2.7.1.4)
       ast (~> 2.4.1)
@@ -35,7 +35,7 @@ PLATFORMS
 
 DEPENDENCIES
   mapknitter_exporter!
-  minitest (~> 5.11.3)
+  minitest (~> 5.14.1)
   rubocop (~> 0.87.1)
   rubocop-performance
 
