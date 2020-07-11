@@ -24,6 +24,8 @@ jobs:
   include:
     - name: "Exporter Tests"
       script: bundle exec ruby test/exporter_test.rb
+    - name: "Rubocop Build"
+      script: bundle exec rubocop
     - name: "Docker Build"
       script: docker build . -t lib-mapknitter-exporter:latest
 
