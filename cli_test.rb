@@ -5,7 +5,7 @@ require "open-uri"
 puts ARGV
 
 url = ARGV[0] || "https://mapknitter.org/maps/ceres--2/warpables.json"
-data = JSON.parse(open(url).read)
+data = JSON.parse(open(url).read) # rubocop:disable Security/Open
 name = ARGV[1] || "test"
 
 class Export

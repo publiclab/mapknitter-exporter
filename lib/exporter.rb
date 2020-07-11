@@ -1,6 +1,9 @@
 require 'mapknitter_exporter'
 require 'cartagen'
 require 'open3'
+require 'net/http'
+require "shellwords"
+require "fileutils"
 
 class MapKnitterExporter
   def self.ulimit
@@ -27,14 +30,11 @@ class MapKnitterExporter
 
   # pixels per meter = pxperm
   def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id)
-    require 'net/http'
-
     image_file_name ||= img_url.split('/').last
     # everything in -working/ can be deleted;
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(collection_id)
     Dir.mkdir(working_directory) unless File.exist?(working_directory) && File.directory?(working_directory)
-    require "shellwords"
     local_location = "#{working_directory}w#{id}-#{image_file_name}"
     directory = warps_directory(collection_id)
     Dir.mkdir(directory) unless File.exist?(directory) && File.directory?(directory)
@@ -73,12 +73,11 @@ class MapKnitterExporter
       host = img_url.split('//').last.split('/').first
       Net::HTTP.start(host) do |http|
         resp = http.get(img_url)
-        open(local_location, "wb") do |file|
+        open(local_location, "wb") do |file| # rubocop:disable Security/Open
           file.write(resp.body)
         end
       end
     else
-      require "fileutils"
       FileUtils.cp(img_url, local_location)
     end
 
@@ -155,6 +154,24 @@ class MapKnitterExporter
     # -equalize
     # -contrast-stretch 0
 
+    image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location)
+
+    gdal_translate = "gdal_translate -of GTiff -a_srs EPSG:4326 " + coordinates + '  -co "TILED=NO" ' + masked_local_location + ' ' + geotiff_location
+    puts gdal_translate
+    system(ulimit + gdal_translate)
+
+    # gdalwarp = 'gdalwarp -srcnodata "255" -dstnodata 0 -cblend 30 -of GTiff -t_srs EPSG:4326 '+geotiff_location+' '+warped_geotiff_location
+    gdalwarp = 'gdalwarp -of GTiff -t_srs EPSG:4326 ' + geotiff_location + ' ' + warped_geotiff_location
+    puts gdalwarp
+    system(ulimit + gdalwarp)
+
+    # deletions could happen here; do it in distinct method so we can run it independently
+    delete_temp_files(id)
+
+    [x1, y1]
+  end
+
+  def image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location)
     image_magick = "convert "
     image_magick += "-contrast-stretch 0 "
     image_magick += local_location.shellescape + " "
@@ -189,23 +206,9 @@ class MapKnitterExporter
     puts image_magick2
     system(ulimit + image_magick2)
 
-    imageMagick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
-    puts imageMagick3
-    system(ulimit + imageMagick3)
-
-    gdal_translate = "gdal_translate -of GTiff -a_srs EPSG:4326 " + coordinates + '  -co "TILED=NO" ' + masked_local_location + ' ' + geotiff_location
-    puts gdal_translate
-    system(ulimit + gdal_translate)
-
-    # gdalwarp = 'gdalwarp -srcnodata "255" -dstnodata 0 -cblend 30 -of GTiff -t_srs EPSG:4326 '+geotiff_location+' '+warped_geotiff_location
-    gdalwarp = 'gdalwarp -of GTiff -t_srs EPSG:4326 ' + geotiff_location + ' ' + warped_geotiff_location
-    puts gdalwarp
-    system(ulimit + gdalwarp)
-
-    # deletions could happen here; do it in distinct method so we can run it independently
-    delete_temp_files(id)
-
-    [x1, y1]
+    image_magick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
+    puts image_magick3
+    system(ulimit + image_magick3)
   end
 
   ########################
@@ -239,8 +242,9 @@ class MapKnitterExporter
       )
       puts '- ' + img_coords.to_s
       all_coords << img_coords
-      lowest_x = img_coords.first if img_coords.first < lowest_x || lowest_x == 0
-      lowest_y = img_coords.last if img_coords.last < lowest_y || lowest_y == 0
+
+      lowest_x = img_coords.first if img_coords.first < lowest_x || lowest_x.zero?
+      lowest_y = img_coords.last if img_coords.last < lowest_y || lowest_y.zero?
     end
     [lowest_x, lowest_y, all_coords]
   end
@@ -263,7 +267,6 @@ class MapKnitterExporter
       end
     end
     puts "minlat #{minlat}, minlon #{minlon}, maxlat #{maxlat}, maxlon #{maxlon}"
-    first = true
     if ordered != true && warpables.first.key?('poly_area')
       # sort by area; this would be overridden by a provided order
       warpables = warpables.sort { |a, b| b['poly_area'] <=> a['poly_area'] }
@@ -332,10 +335,10 @@ class MapKnitterExporter
     end
 
     directory = "public/warps/#{id}/"
-    stdin, stdout, stderr = Open3.popen3('rm -r ' + directory.to_s)
+    _stdin, stdout, stderr = Open3.popen3('rm -r ' + directory.to_s)
     puts stdout.readlines
     puts stderr.readlines
-    stdin, stdout, stderr = Open3.popen3("rm -r public/tms/#{id}")
+    _stdin, stdout, stderr = Open3.popen3("rm -r public/tms/#{id}")
     puts stdout.readlines
     puts stderr.readlines
 

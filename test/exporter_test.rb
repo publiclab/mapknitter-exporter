@@ -3,7 +3,8 @@ require "./lib/exporter"
 require "json"
 
 class ExporterTest < Minitest::Test
-  def test_all_functions # TODO: break this into separate parts
+  # TODO: break this into separate parts
+  def test_all_functions
     id = 99
     user_id = 1
     scale = 2
@@ -76,7 +77,7 @@ class ExporterTest < Minitest::Test
       export,
       id
     )
-    lowest_x, lowest_y, warpable_coords = origin
+    _lowest_x, _lowest_y, warpable_coords = origin
     assert origin
     ordered = false
 
