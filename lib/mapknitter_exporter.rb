@@ -1,2 +1,2 @@
-require 'cartagen'
-require 'exporter'
+require_relative 'cartagen'
+require_relative 'exporter'

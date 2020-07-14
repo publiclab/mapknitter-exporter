@@ -1,4 +1,4 @@
-require "./lib/exporter"
+require_relative "lib/exporter"
 require "json"
 require "open-uri"
 

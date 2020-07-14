@@ -1,5 +1,5 @@
+require_relative "../lib/exporter"
 require "minitest/autorun"
-require "./lib/exporter"
 require "json"
 
 class ExporterTest < Minitest::Test

@@ -1,5 +1,5 @@
-require 'mapknitter_exporter'
-require 'cartagen'
+require_relative 'cartagen'
+require_relative 'mapknitter_exporter'
 require 'open3'
 require 'net/http'
 require "shellwords"
@@ -28,8 +28,48 @@ class MapKnitterExporter
   ########################
   ## Run on each image:
 
+  def self.image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location, points)
+    image_magick = "convert "
+    image_magick += "-contrast-stretch 0 "
+    image_magick += local_location.shellescape + " "
+    image_magick += "-crop " + maxdimension.to_i.to_s + "x" + maxdimension.to_i.to_s + "+0+0! "
+    image_magick += "-flatten "
+    image_magick += "-distort Perspective '" + points + "' "
+    image_magick += "-flatten "
+    image_magick += if width > height
+                      "-crop " + width + "x" + width + "+0+0\! "
+                    else
+                      "-crop " + height + "x" + height + "+0+0\! "
+                   end
+    image_magick += "+repage "
+    image_magick += completed_local_location
+    puts image_magick
+    system(ulimit + image_magick)
+
+    # create a mask (later we can blur edges here)
+    image_magick2 = 'convert +antialias '
+    image_magick2 += if width > height
+                       "-size " + width + "x" + width + " "
+                     else
+                       "-size " + height + "x" + height + " "
+                    end
+    # attempt at blurred edges in masking, but I've given up, as gdal_merge doesn't seem to respect variable-opacity alpha channels
+    image_magick2 += ' xc:none -draw "fill black stroke red stroke-width 30 polyline '
+    image_magick2 += maskpoints + '" '
+    image_magick2 += ' -alpha set -channel A -transparent red -blur 0x8 -channel R -evaluate set 0 +channel ' + mask_location
+    # image_magick2 += ' xc:none -draw "fill black stroke none polyline '
+    # image_magick2 += maskpoints + '" '
+    # image_magick2 += ' '+mask_location
+    puts image_magick2
+    system(ulimit + image_magick2)
+
+    image_magick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
+    puts image_magick3
+    system(ulimit + image_magick3)
+  end
+
   # pixels per meter = pxperm
-  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id)
+  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id) # rubocop:disable Metrics/AbcSize
     image_file_name ||= img_url.split('/').last
     # everything in -working/ can be deleted;
     # this is just so we can use the files locally outside of s3
@@ -154,7 +194,7 @@ class MapKnitterExporter
     # -equalize
     # -contrast-stretch 0
 
-    image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location)
+    image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location, points)
 
     gdal_translate = "gdal_translate -of GTiff -a_srs EPSG:4326 " + coordinates + '  -co "TILED=NO" ' + masked_local_location + ' ' + geotiff_location
     puts gdal_translate
@@ -169,46 +209,6 @@ class MapKnitterExporter
     delete_temp_files(id)
 
     [x1, y1]
-  end
-
-  def image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location)
-    image_magick = "convert "
-    image_magick += "-contrast-stretch 0 "
-    image_magick += local_location.shellescape + " "
-    image_magick += "-crop " + maxdimension.to_i.to_s + "x" + maxdimension.to_i.to_s + "+0+0! "
-    image_magick += "-flatten "
-    image_magick += "-distort Perspective '" + points + "' "
-    image_magick += "-flatten "
-    image_magick += if width > height
-                      "-crop " + width + "x" + width + "+0+0\! "
-                    else
-                      "-crop " + height + "x" + height + "+0+0\! "
-                   end
-    image_magick += "+repage "
-    image_magick += completed_local_location
-    puts image_magick
-    system(ulimit + image_magick)
-
-    # create a mask (later we can blur edges here)
-    image_magick2 = 'convert +antialias '
-    image_magick2 += if width > height
-                       "-size " + width + "x" + width + " "
-                     else
-                       "-size " + height + "x" + height + " "
-                    end
-    # attempt at blurred edges in masking, but I've given up, as gdal_merge doesn't seem to respect variable-opacity alpha channels
-    image_magick2 += ' xc:none -draw "fill black stroke red stroke-width 30 polyline '
-    image_magick2 += maskpoints + '" '
-    image_magick2 += ' -alpha set -channel A -transparent red -blur 0x8 -channel R -evaluate set 0 +channel ' + mask_location
-    # image_magick2 += ' xc:none -draw "fill black stroke none polyline '
-    # image_magick2 += maskpoints + '" '
-    # image_magick2 += ' '+mask_location
-    puts image_magick2
-    system(ulimit + image_magick2)
-
-    image_magick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
-    puts image_magick3
-    system(ulimit + image_magick3)
   end
 
   ########################
