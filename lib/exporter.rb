@@ -1,6 +1,9 @@
-require 'mapknitter_exporter'
-require 'cartagen'
+require_relative 'cartagen'
+require_relative 'mapknitter_exporter'
 require 'open3'
+require 'net/http'
+require "shellwords"
+require "fileutils"
 
 class MapKnitterExporter
   def self.ulimit
@@ -25,16 +28,53 @@ class MapKnitterExporter
   ########################
   ## Run on each image:
 
-  # pixels per meter = pxperm
-  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id)
-    require 'net/http'
+  def self.image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location, points)
+    image_magick = "convert "
+    image_magick += "-contrast-stretch 0 "
+    image_magick += local_location.shellescape + " "
+    image_magick += "-crop " + maxdimension.to_i.to_s + "x" + maxdimension.to_i.to_s + "+0+0! "
+    image_magick += "-flatten "
+    image_magick += "-distort Perspective '" + points + "' "
+    image_magick += "-flatten "
+    image_magick += if width > height
+                      "-crop " + width + "x" + width + "+0+0\! "
+                    else
+                      "-crop " + height + "x" + height + "+0+0\! "
+                   end
+    image_magick += "+repage "
+    image_magick += completed_local_location
+    puts image_magick
+    system(ulimit + image_magick)
 
+    # create a mask (later we can blur edges here)
+    image_magick2 = 'convert +antialias '
+    image_magick2 += if width > height
+                       "-size " + width + "x" + width + " "
+                     else
+                       "-size " + height + "x" + height + " "
+                    end
+    # attempt at blurred edges in masking, but I've given up, as gdal_merge doesn't seem to respect variable-opacity alpha channels
+    image_magick2 += ' xc:none -draw "fill black stroke red stroke-width 30 polyline '
+    image_magick2 += maskpoints + '" '
+    image_magick2 += ' -alpha set -channel A -transparent red -blur 0x8 -channel R -evaluate set 0 +channel ' + mask_location
+    # image_magick2 += ' xc:none -draw "fill black stroke none polyline '
+    # image_magick2 += maskpoints + '" '
+    # image_magick2 += ' '+mask_location
+    puts image_magick2
+    system(ulimit + image_magick2)
+
+    image_magick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
+    puts image_magick3
+    system(ulimit + image_magick3)
+  end
+
+  # pixels per meter = pxperm
+  def self.generate_perspectival_distort(pxperm, id, nodes_array, image_file_name, img_url, height, width, collection_id) # rubocop:disable Metrics/AbcSize
     image_file_name ||= img_url.split('/').last
     # everything in -working/ can be deleted;
     # this is just so we can use the files locally outside of s3
     working_directory = get_working_directory(collection_id)
     Dir.mkdir(working_directory) unless File.exist?(working_directory) && File.directory?(working_directory)
-    require "shellwords"
     local_location = "#{working_directory}w#{id}-#{image_file_name}"
     directory = warps_directory(collection_id)
     Dir.mkdir(directory) unless File.exist?(directory) && File.directory?(directory)
@@ -73,12 +113,11 @@ class MapKnitterExporter
       host = img_url.split('//').last.split('/').first
       Net::HTTP.start(host) do |http|
         resp = http.get(img_url)
-        open(local_location, "wb") do |file|
+        open(local_location, "wb") do |file| # rubocop:disable Security/Open
           file.write(resp.body)
         end
       end
     else
-      require "fileutils"
       FileUtils.cp(img_url, local_location)
     end
 
@@ -155,43 +194,7 @@ class MapKnitterExporter
     # -equalize
     # -contrast-stretch 0
 
-    image_magick = "convert "
-    image_magick += "-contrast-stretch 0 "
-    image_magick += local_location.shellescape + " "
-    image_magick += "-crop " + maxdimension.to_i.to_s + "x" + maxdimension.to_i.to_s + "+0+0! "
-    image_magick += "-flatten "
-    image_magick += "-distort Perspective '" + points + "' "
-    image_magick += "-flatten "
-    image_magick += if width > height
-                      "-crop " + width + "x" + width + "+0+0\! "
-                    else
-                      "-crop " + height + "x" + height + "+0+0\! "
-                   end
-    image_magick += "+repage "
-    image_magick += completed_local_location
-    puts image_magick
-    system(ulimit + image_magick)
-
-    # create a mask (later we can blur edges here)
-    image_magick2 = 'convert +antialias '
-    image_magick2 += if width > height
-                       "-size " + width + "x" + width + " "
-                     else
-                       "-size " + height + "x" + height + " "
-                    end
-    # attempt at blurred edges in masking, but I've given up, as gdal_merge doesn't seem to respect variable-opacity alpha channels
-    image_magick2 += ' xc:none -draw "fill black stroke red stroke-width 30 polyline '
-    image_magick2 += maskpoints + '" '
-    image_magick2 += ' -alpha set -channel A -transparent red -blur 0x8 -channel R -evaluate set 0 +channel ' + mask_location
-    # image_magick2 += ' xc:none -draw "fill black stroke none polyline '
-    # image_magick2 += maskpoints + '" '
-    # image_magick2 += ' '+mask_location
-    puts image_magick2
-    system(ulimit + image_magick2)
-
-    imageMagick3 = 'composite ' + mask_location + ' ' + completed_local_location + ' -compose DstIn -alpha Set ' + masked_local_location
-    puts imageMagick3
-    system(ulimit + imageMagick3)
+    image_magick_manipulation(height, width, mask_location, local_location, completed_local_location, maxdimension, maskpoints, masked_local_location, points)
 
     gdal_translate = "gdal_translate -of GTiff -a_srs EPSG:4326 " + coordinates + '  -co "TILED=NO" ' + masked_local_location + ' ' + geotiff_location
     puts gdal_translate
@@ -239,8 +242,9 @@ class MapKnitterExporter
       )
       puts '- ' + img_coords.to_s
       all_coords << img_coords
-      lowest_x = img_coords.first if img_coords.first < lowest_x || lowest_x == 0
-      lowest_y = img_coords.last if img_coords.last < lowest_y || lowest_y == 0
+
+      lowest_x = img_coords.first if img_coords.first < lowest_x || lowest_x.zero?
+      lowest_y = img_coords.last if img_coords.last < lowest_y || lowest_y.zero?
     end
     [lowest_x, lowest_y, all_coords]
   end
@@ -263,7 +267,6 @@ class MapKnitterExporter
       end
     end
     puts "minlat #{minlat}, minlon #{minlon}, maxlat #{maxlat}, maxlon #{maxlon}"
-    first = true
     if ordered != true && warpables.first.key?('poly_area')
       # sort by area; this would be overridden by a provided order
       warpables = warpables.sort { |a, b| b['poly_area'] <=> a['poly_area'] }
@@ -332,10 +335,10 @@ class MapKnitterExporter
     end
 
     directory = "public/warps/#{id}/"
-    stdin, stdout, stderr = Open3.popen3('rm -r ' + directory.to_s)
+    _stdin, stdout, stderr = Open3.popen3('rm -r ' + directory.to_s)
     puts stdout.readlines
     puts stderr.readlines
-    stdin, stdout, stderr = Open3.popen3("rm -r public/tms/#{id}")
+    _stdin, stdout, stderr = Open3.popen3("rm -r public/tms/#{id}")
     puts stdout.readlines
     puts stderr.readlines
 

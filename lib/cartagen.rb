@@ -9,8 +9,8 @@ class Cartagen
     (lon * scale) / 180
   end
 
-  def self.spherical_mercator_x_to_lon(x, scale = 10_000)
-    (x / scale) * 180
+  def self.spherical_mercator_x_to_lon(x_axis, scale = 10_000)
+    (x_axis / scale) * 180
   end
 
   def self.spherical_mercator_lat_to_y(lat, scale = 10_000)
@@ -19,17 +19,15 @@ class Cartagen
     y * scale / 180
   end
 
-  def self.spherical_mercator_y_to_lat(y, scale = 10_000)
+  def self.spherical_mercator_y_to_lat(y_axis, scale = 10_000)
     # 180/Math::PI * (2 * Math.atan(Math.exp(y/scale_factor*Math::PI/180)) - Math::PI/2)
-    lat = (y / scale) * 180
+    lat = (y_axis / scale) * 180
     180 / Math::PI * (2 * Math.atan(Math.exp(lat * Math::PI / 180)) - Math::PI / 2)
   end
 
   # collects coastline ways into collected_way relations;
   # see  http://wiki.openstreetmap.org/wiki/Relations/Proposed/Collected_Ways
   def self.collect_ways(features)
-    # collected_ways variable unused review this function
-    collected_ways = []
     nodes = {}
     features['osm']['node'].each do |node|
       nodes[node['id']] = node
