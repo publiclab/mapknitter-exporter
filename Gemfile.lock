@@ -12,19 +12,19 @@ GEM
     parser (2.7.1.4)
       ast (~> 2.4.1)
     rainbow (3.0.0)
-    regexp_parser (1.7.1)
+    regexp_parser (1.8.0)
     rexml (3.2.4)
-    rubocop (0.87.1)
+    rubocop (0.91.1)
       parallel (~> 1.10)
       parser (>= 2.7.1.1)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.7)
       rexml
-      rubocop-ast (>= 0.1.0, < 1.0)
+      rubocop-ast (>= 0.4.0, < 1.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (0.1.0)
-      parser (>= 2.7.0.1)
+    rubocop-ast (0.4.2)
+      parser (>= 2.7.1.4)
     rubocop-performance (1.7.0)
       rubocop (>= 0.82.0)
     ruby-progressbar (1.10.1)
@@ -36,7 +36,7 @@ PLATFORMS
 DEPENDENCIES
   mapknitter_exporter!
   minitest (~> 5.14.1)
-  rubocop (~> 0.87.1)
+  rubocop (~> 0.91.1)
   rubocop-performance
 
 RUBY VERSION
