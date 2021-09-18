@@ -17,3 +17,20 @@ jobs:
         env:
           FORCE_COLOR: 1
         run: bundle exec rubocop --color --fail-fast
+
+  exporter-tests:
+    name: Exporter tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Prepare Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.4.6
+          bundler-cache: true
+      - name: Exporter tests
+        run: |
+          sudo ./scripts/install-deps.sh > /dev/null
+          bundle exec ruby test/exporter_test.rb
+
