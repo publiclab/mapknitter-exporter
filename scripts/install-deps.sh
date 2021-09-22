@@ -2,8 +2,7 @@
 
 echo "deb [trusted=yes] http://packages.laboratoriopublico.org/publiclab/ stretch main" > /etc/apt/sources.list.d/publiclab.list
 
-# Obtain key
-apt-key adv --keyserver ipv4.pool.sks-keyservers.net --recv-keys BF26EE05EA6A68F0 > /dev/null 2>&1
+# Add repository 
 add-apt-repository -y ppa:ubuntugis/ppa
 
 # Install dependencies
