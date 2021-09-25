@@ -10,14 +10,14 @@ RUN echo "deb http://packages.laboratoriopublico.org/publiclab/ stretch main" > 
 # Obtain key
 RUN mkdir ~/.gnupg
 RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
-RUN apt-key adv --keyserver ipv4.pool.sks-keyservers.net --recv-keys BF26EE05EA6A68F0
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BF26EE05EA6A68F0 > /dev/null 2>&1
 
 # Install dependencies
 RUN apt-get update -qq && apt-get install -y \
-  gdal-bin curl procps git imagemagick python-gdal zip
+  gdal-bin curl procps git imagemagick python3-gdal zip
 RUN sed -i 's/<policy domain="delegate" rights="none" pattern="HTTPS" \/>//g' /etc/ImageMagick-6/policy.xml
 
-# Add the Rails app
+# Add the Rails app3
 ADD . /app
 WORKDIR /app
 
