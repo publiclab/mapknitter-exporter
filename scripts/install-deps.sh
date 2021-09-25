@@ -10,7 +10,6 @@ add-apt-repository -y ppa:ubuntugis/ppa
 apt-get update -qq && apt-get install --allow-unauthenticated -y \
                         gdal-bin \
                         python3-gdal \
-                        python-gdal \
                         libgdal-dev \
                         g++ \
                         curl \

@@ -32,3 +32,4 @@ jobs:
       - name: Exporter tests
         run: |
           sudo ./scripts/install-deps.sh > /dev/null
+          bundle exec ruby test/exporter_test.rb
