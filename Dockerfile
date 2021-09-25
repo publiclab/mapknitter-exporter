@@ -22,6 +22,7 @@ ADD . /app
 WORKDIR /app
 
 # Install bundle of gems
+RUN gem install bundler
 RUN bundle install
 
 CMD ruby test/exporter_test.rb

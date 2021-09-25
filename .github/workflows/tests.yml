@@ -33,3 +33,14 @@ jobs:
         run: |
           sudo ./scripts/install-deps.sh > /dev/null
           bundle exec ruby test/exporter_test.rb
+
+  docker-build-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.4.6
+          bundler-cache: true
+      - name: 'Docker Build'
+        run: docker build . -t lib-mapknitter-exporter:latest
