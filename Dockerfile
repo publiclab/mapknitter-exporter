@@ -13,7 +13,7 @@ RUN echo "disable-ipv6" >> ~/.gnupg/dirmngr.conf
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys BF26EE05EA6A68F0 > /dev/null 2>&1
 
 # Install dependencies
-RUN apt-get update -qq && apt-get install -y \
+RUN apt-get update -qq && apt-get install --allow-unauthenticated -y \
   gdal-bin curl procps git imagemagick python3-gdal zip
 RUN sed -i 's/<policy domain="delegate" rights="none" pattern="HTTPS" \/>//g' /etc/ImageMagick-6/policy.xml
 
