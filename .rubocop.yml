@@ -9,6 +9,7 @@ AllCops:
   Include:
     - '*/**/*.rb'
   Exclude:
+    - vendor/bundle/**/*
     - 'spec/*'
     - 'views/*'
   TargetRubyVersion: '2.4'
