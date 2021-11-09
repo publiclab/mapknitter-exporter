@@ -276,7 +276,7 @@ class MapKnitterExporter
       wid = "w" + warpable['id'].to_s
       geotiffs += ' ' + directory + wid + '.tif'
     end
-    gdalwarp = "gdalwarp -s_srs EPSG:3857 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{geotiffs} #{directory}#{id}.tif"
+    gdalwarp = "gdalwarp -s_srs EPSG:3857 -t_srs EPSG:4326 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{geotiffs} #{directory}#{id}.tif"
     puts gdalwarp
     system(ulimit + gdalwarp)
     composite_location
@@ -286,7 +286,7 @@ class MapKnitterExporter
   def self.generate_tiles(key, id)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key ||= "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -t #{id} -g #{key} public/warps/#{id}/#{id}.tif public/tms/#{id}/"
+    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:3857 -z 10-22 -t #{id} -g #{key} public/warps/#{id}/#{id}.tif public/tms/#{id}/"
     puts gdal2tiles
     if system(ulimit + gdal2tiles)
       "public/tms/#{id}/"
