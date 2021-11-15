@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
-  s.name        = 'mapknitter_exporter'
-  s.version     = '1.0.9'
-  s.date        = '2019-07-01'
+  s.name        = 'mapknitter-exporter'
+  s.version     = '1.0.11'
+  s.date        = '2021-11-15'
   s.summary     = "The GDAL/ImageMagick-based exporter system from MapKnitter"
   s.description = "The GDAL/ImageMagick-based exporter system from MapKnitter"
   s.authors     = ["Jeffrey Warren"]
@@ -10,5 +10,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.homepage    =
     'http://rubygems.org/gems/mapknitter_exporter'
-  s.license       = 'GPLv3'
+  s.license       = 'GPL-3.0'
 end
