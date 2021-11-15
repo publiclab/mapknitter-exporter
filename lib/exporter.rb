@@ -276,7 +276,7 @@ class MapKnitterExporter
       wid = "w" + warpable['id'].to_s
       geotiffs += ' ' + directory + wid + '.tif'
     end
-    gdalwarp = "gdalwarp -s_srs EPSG:3857 -t_srs EPSG:4326 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{geotiffs} #{directory}#{id}.tif"
+    gdalwarp = "gdalwarp -te_srs EPSG:4326 -t_srs EPSG:4326 -te #{minlon} #{minlat} #{maxlon} #{maxlat} #{geotiffs} #{directory}#{id}.tif"
     puts gdalwarp
     system(ulimit + gdalwarp)
     composite_location
