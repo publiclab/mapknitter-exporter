@@ -286,7 +286,7 @@ class MapKnitterExporter
   def self.generate_tiles(key, id)
     key = "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ" if key == "" # ugh, let's clean this up!
     key ||= "AIzaSyAOLUQngEmJv0_zcG1xkGq-CXIPpLQY8iQ"
-    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:900913 -t #{id} -g #{key} public/warps/#{id}/#{id}.tif public/tms/#{id}/"
+    gdal2tiles = "gdal2tiles.py -k --s_srs EPSG:4326 -t #{id} -g #{key} public/warps/#{id}/#{id}.tif public/tms/#{id}/"
     puts gdal2tiles
     if system(ulimit + gdal2tiles)
       "public/tms/#{id}/"
